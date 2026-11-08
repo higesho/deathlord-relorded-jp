@@ -1,0 +1,8 @@
+build/
+out/
+__pycache__/
+*.tsv
+*.bin
+*.aux
+*.bmp
+*.log

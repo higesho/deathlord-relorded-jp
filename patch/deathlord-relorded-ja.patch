@@ -1,0 +1,2619 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a6ee2bf..d1c5bd5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -116,6 +116,8 @@ add_executable(dlrl WIN32 MACOSX_BUNDLE
+     src/Texture.cpp
+     src/SpriteFont.cpp
+     src/ModernUI.cpp
++    src/Localization.cpp
++    src/HgrText.cpp
+ )
+ target_include_directories(dlrl PRIVATE
+     ${CMAKE_CURRENT_SOURCE_DIR}
+@@ -132,6 +134,7 @@ target_link_libraries(dlrl PRIVATE
+ 
+ if(MSVC)
+     target_compile_definitions(dlrl PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
++    target_compile_options(dlrl PRIVATE /utf-8)
+ endif()
+ if(APPLE)
+     target_compile_definitions(dlrl PRIVATE GL_SILENCE_DEPRECATION)
+diff --git a/Deathlord-Relorded/Emulator/pp/postprocessor.cpp b/Deathlord-Relorded/Emulator/pp/postprocessor.cpp
+index 46966e2..0f0e396 100644
+--- a/Deathlord-Relorded/Emulator/pp/postprocessor.cpp
++++ b/Deathlord-Relorded/Emulator/pp/postprocessor.cpp
+@@ -1,6 +1,10 @@
+ #include "postprocessor.h"
+ #include "imgui.h"
+ #include "imgui_internal.h"		// for PushItemFlag
++
++// Provided by the DLRL host (src/Localization.cpp): returns the Japanese
++// label when the Japanese display is enabled, otherwise the English one.
++namespace loc { const char* T(const char* english); }
+ #include "extras/ImGuiFileDialog.h"
+ // For save/restore of presets
+ #include <fstream>
+@@ -165,7 +169,7 @@ namespace sa2 {
+ 		{
+ 			ImGui::BeginTooltip();
+ 			//ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+-			ImGui::TextEx(desc);
++			ImGui::TextEx(loc::T(desc));
+ 			//ImGui::PopTextWrapPos();
+ 			ImGui::EndTooltip();
+ 		}
+@@ -894,24 +898,24 @@ namespace sa2 {
+ 		if (bImguiWindowIsOpen)
+ 		{
+ 			ImGui::SetNextWindowSizeConstraints(ImVec2(450, 400), ImVec2(FLT_MAX, FLT_MAX));
+-			ImGui::Begin("Post Processing CRT Shader", &bImguiWindowIsOpen);
+-			ImGui::Checkbox("Enable Post Processing", &bIsActive);
++			ImGui::Begin(loc::T("Post Processing CRT Shader"), &bImguiWindowIsOpen);
++			ImGui::Checkbox(loc::T("Enable Post Processing"), &bIsActive);
+ 			if (!bIsActive) {
+ 				ImGui::End();
+ 				return;
+ 			}
+ 
+-			if (ImGui::Button("Reset to defaults"))
++			if (ImGui::Button(loc::T("Reset to defaults")))
+ 			{
+ 				ResetToDefaults();
+ 			}
+ 
+ 			// Handle presets
+-			ImGui::Text("[ PRESETS ]");
++			ImGui::Text(loc::T("[ PRESETS ]"));
+ 			IGFD::FileDialogConfig config;
+ 			config.path = std::string(APP_BASE_PATH()).append("./presets/");
+ 			static ImGuiFileDialog instance_presets;
+-			if (ImGui::Button("Load")) {
++			if (ImGui::Button(loc::T("Load"))) {
+ 				if (instance_presets.IsOpened())
+ 					instance_presets.Close();
+ 				ImGui::SetNextWindowSize(ImVec2(800, 400));
+@@ -922,10 +926,10 @@ namespace sa2 {
+ 				std::strncpy(preset_name_buffer, "Untitled", sizeof(preset_name_buffer) - 1);
+ 			}
+ 			ImGui::PushItemWidth(200);
+-			ImGui::InputText("Name", preset_name_buffer, sizeof(preset_name_buffer));
++			ImGui::InputText(loc::T("Name"), preset_name_buffer, sizeof(preset_name_buffer));
+ 			ImGui::PopItemWidth();
+ 			ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();	// End Name
+-			if (ImGui::Button("Save")) {
++			if (ImGui::Button(loc::T("Save"))) {
+ 				if (instance_presets.IsOpened())
+ 					instance_presets.Close();
+ 				ImGui::SetNextWindowSize(ImVec2(800, 400));
+@@ -952,26 +956,26 @@ namespace sa2 {
+ 
+ 			// PP Type
+ 			ImGui::Separator();
+-			ImGui::Text("[ POSTPROCESSING LEVEL ]");
+-			ImGui::RadioButton("Transforms and Overlays##PPLEVEL", &p_i_postprocessingLevel, 0); ImGui::SameLine();
++			ImGui::Text(loc::T("[ POSTPROCESSING LEVEL ]"));
++			ImGui::RadioButton(loc::T("Transforms and Overlays##PPLEVEL"), &p_i_postprocessingLevel, 0); ImGui::SameLine();
+ 			HelpMarker("Geometry transformations and bezels.\nLow performance impact.");
+-			ImGui::RadioButton("Full CRT##PPLEVEL", &p_i_postprocessingLevel, 2);
++			ImGui::RadioButton(loc::T("Full CRT##PPLEVEL"), &p_i_postprocessingLevel, 2);
+ 			HelpMarker("All CRT shader capabilities.\nPotentially high performance impact.");
+ 			ImGui::Separator();
+-			ImGui::Text("[ BASE INTEGER SCALE ]");
+-			ImGui::Checkbox("Auto", &bAutoScale);
++			ImGui::Text(loc::T("[ BASE INTEGER SCALE ]"));
++			ImGui::Checkbox(loc::T("Auto"), &bAutoScale);
+ 			HelpMarker("Automatically selects the largest output possible, with pixel perfect scaling");
+ 			if (bAutoScale)
+ 				ImGui::BeginDisabled();
+-			ImGui::SliderInt("Integer Scale", &integer_scale, 1, max_integer_scale, "%d");
++			ImGui::SliderInt(loc::T("Integer Scale"), &integer_scale, 1, max_integer_scale, "%d");
+ 			if (bAutoScale)
+ 				ImGui::EndDisabled();
+ 
+ 			ImGui::Separator();
+ 
+-			ImGui::Text("[ GEOMETRY & OVERLAY]");
++			ImGui::Text(loc::T("[ GEOMETRY & OVERLAY]"));
+ 			// GEOMETRY
+-			if (ImGui::Checkbox("Fill Window", &bCRTFillWindow))
++			if (ImGui::Checkbox(loc::T("Fill Window"), &bCRTFillWindow))
+ 			{
+ 				p_v_zoom.x = 1.0f;
+ 				p_v_zoom.y = 1.0f;
+@@ -983,13 +987,13 @@ namespace sa2 {
+ 			{
+ 				float uniform = p_v_zoom.x;
+ 				p_v_zoom.y = p_v_zoom.x;
+-				if (ImGui::DragFloat("Image Zoom", &uniform, 0.001f, 0.001f, 5.0f, "%.3f"))
++				if (ImGui::DragFloat(loc::T("Image Zoom"), &uniform, 0.001f, 0.001f, 5.0f, "%.3f"))
+ 					p_v_zoom = glm::vec2(uniform);
+ 			}
+ 			else
+ 				ImGui::DragFloat2("Image Zoom", reinterpret_cast<float*>(&p_v_zoom), 0.001f, 0.001f, 5.0f, "%.3f");
+ 			ImGui::SameLine(); ImGui::Spacing();
+-			ImGui::SameLine(); ImGui::Checkbox("Uniform##Zoom", &bImGuiLockZoom);
++			ImGui::SameLine(); ImGui::Checkbox(loc::T("Uniform##Zoom"), &bImGuiLockZoom);
+ 
+ 			ImGui::DragFloat2("Image Center", reinterpret_cast<float*>(&p_v_center), 0.1f, -100.0f, 100.0f, "%.2f");
+ 
+@@ -1002,7 +1006,7 @@ namespace sa2 {
+ 			for (const auto& file : _bezelFiles) {
+ 				bezelFileCStrs.push_back(file.c_str());
+ 			}
+-			if (ImGui::Combo("Image", &currentBezelIndex, bezelFileCStrs.data(), static_cast<int>(bezelFileCStrs.size())))
++			if (ImGui::Combo(loc::T("Image"), &currentBezelIndex, bezelFileCStrs.data(), static_cast<int>(bezelFileCStrs.size())))
+ 			{
+ 				selectedBezelFile = _bezelFiles[currentBezelIndex];
+ 				if (currentBezelIndex > 0)
+@@ -1011,10 +1015,10 @@ namespace sa2 {
+ 			ImGui::DragFloat2("Overlay Zoom", reinterpret_cast<float*>(&bezelSize), 0.001f, 0.f, 300.f, "%.2f");
+ 			ImGui::DragFloat2("Overlay Center", reinterpret_cast<float*>(&bezelCenter), 1.f, -300.f, 300.f, "%.2f");
+ 			if (bezelGlassImageAsset.image_xcount > 0) {
+-				ImGui::SliderFloat("Glass Thickness", &p_f_glassThickness, 0.f, 2.f, "%.2f");
++				ImGui::SliderFloat(loc::T("Glass Thickness"), &p_f_glassThickness, 0.f, 2.f, "%.2f");
+ 			}
+ 			p_b_outlineQuad = false;
+-			ImGui::SliderFloat("Bezel Reflection", &p_f_bezelReflection, 0.f, 0.5f, "%.3f");
++			ImGui::SliderFloat(loc::T("Bezel Reflection"), &p_f_bezelReflection, 0.f, 0.5f, "%.3f");
+ 			HelpMarker("WARNING: Tricky to get right. Read on for more info: \n\
+ In order to make a very fast fake reflection technique, we mirror the Apple 2\n\
+ texture with blur, and superpose it onto the overlay only where the bezel has\n\
+@@ -1024,7 +1028,7 @@ tweak the size and position of the mirrored texture to conform to your idea of\n
+ a reflection for your bezel. It takes work but can provide a really valuable\n\
+ FX that makes the whole screen 'pop'. Tweak the scale and center when at 0 blur\n\
+ and strong reflection, then dial blur up and reflection down.");
+-			ImGui::SliderFloat("Reflection Blur", &p_f_reflectionBlur, 0.0f, 10.f, "%.3f");
++			ImGui::SliderFloat(loc::T("Reflection Blur"), &p_f_reflectionBlur, 0.0f, 10.f, "%.3f");
+ 			if (ImGui::DragFloat2("Reflection Scale", reinterpret_cast<float*>(&p_v_reflectionScale),
+ 								  0.001f, 0.001f, 5.0f, "%.3f"))
+ 				p_b_outlineQuad = true;
+@@ -1034,8 +1038,8 @@ and strong reflection, then dial blur up and reflection down.");
+ 
+ 			ImGui::Separator();
+ 
+-			ImGui::Text("[ FRAME MERGING ]");
+-			ImGui::Checkbox("Merge Frame Pairs", &bHalveFramerate);
++			ImGui::Text(loc::T("[ FRAME MERGING ]"));
++			ImGui::Checkbox(loc::T("Merge Frame Pairs"), &bHalveFramerate);
+ 			HelpMarker("WARNING: SIGNIFICANT FPS IMPACT!\n\
+ Merges every pair of even and odd frames.\n\
+ Effectively halves the frame rate\n\
+@@ -1044,15 +1048,15 @@ with page flipping images");
+ 			if (p_i_postprocessingLevel == 2) {
+ 				ImGui::Separator();
+ 				// Scanline and Interlacing
+-				ImGui::Text("[ SCANLINE TYPE ]");
+-				ImGui::RadioButton("None##SCANLINETYPE", &p_i_scanlineType, 0);
++				ImGui::Text(loc::T("[ SCANLINE TYPE ]"));
++				ImGui::RadioButton(loc::T("None##SCANLINETYPE"), &p_i_scanlineType, 0);
+ 				ImGui::SameLine();
+-				if (ImGui::RadioButton("Simple##SCANLINETYPE", &p_i_scanlineType, 1))
++				if (ImGui::RadioButton(loc::T("Simple##SCANLINETYPE"), &p_i_scanlineType, 1))
+ 				{
+ 					p_f_scanlineWeight = 0.3f;
+ 				}
+ 				ImGui::SameLine();
+-				if (ImGui::RadioButton("Complex##SCANLINETYPE", &p_i_scanlineType, 2))
++				if (ImGui::RadioButton(loc::T("Complex##SCANLINETYPE"), &p_i_scanlineType, 2))
+ 				{
+ 					p_f_scanlineWeight = 1.0f;
+ 				}
+@@ -1062,29 +1066,29 @@ You should generally tweak color settings (further down)\n\
+ when using the complex scanline type");
+ 				if (p_i_scanlineType >= 2)
+ 				{
+-					ImGui::SliderFloat("Scanline Weight", &p_f_scanlineWeight, 0.0f, 2.0f, "%.2f");
+-					ImGui::SliderFloat("Scanline Speed", &p_f_scanSpeed, 0.0f, 2.0f, "%.2f");
+-					ImGui::SliderFloat("Film Grain", &p_f_filmGrain, 0.0f, 1.0f, "%.2f");
+-					ImGui::SliderFloat("Vignette Weight", &p_f_vignetteWeight, 0.0f, 5.0f, "%.2f");
++					ImGui::SliderFloat(loc::T("Scanline Weight"), &p_f_scanlineWeight, 0.0f, 2.0f, "%.2f");
++					ImGui::SliderFloat(loc::T("Scanline Speed"), &p_f_scanSpeed, 0.0f, 2.0f, "%.2f");
++					ImGui::SliderFloat(loc::T("Film Grain"), &p_f_filmGrain, 0.0f, 1.0f, "%.2f");
++					ImGui::SliderFloat(loc::T("Vignette Weight"), &p_f_vignetteWeight, 0.0f, 5.0f, "%.2f");
+ 					HelpMarker("Darker sides of the scanlines, works better when there's distortion");
+-					ImGui::SliderFloat("Interlacing", &p_f_interlace, 0.0f, 2.0f, "%.2f");
++					ImGui::SliderFloat(loc::T("Interlacing"), &p_f_interlace, 0.0f, 2.0f, "%.2f");
+ 					HelpMarker("If you really want to feel the pain of bad refresh rates");
+ 				}
+ 
+ 				ImGui::Separator();
+ 
+ 				// Blurring and Ghosting
+-				ImGui::Text("[ BLUR & GHOSTING ]");
+-				ImGui::SliderFloat("Phosphor Blur", &p_f_phosphorBlur, 0.0, 2.0, "%.2f");
++				ImGui::Text(loc::T("[ BLUR & GHOSTING ]"));
++				ImGui::SliderFloat(loc::T("Phosphor Blur"), &p_f_phosphorBlur, 0.0, 2.0, "%.2f");
+ 				HelpMarker("Some screen blur");
+-				ImGui::SameLine();ImGui::Checkbox("Glow", &p_b_phosphorGlow);
++				ImGui::SameLine();ImGui::Checkbox(loc::T("Glow"), &p_b_phosphorGlow);
+ 				HelpMarker("Some screen blur");
+ 
+ 				// We'll use a normalized slider value in [0,1]
+ 				static float _ghostingSV = 100.0f * (1.0f - pow(1.0f - p_f_ghostingPercent / 100.0f, 0.5f));
+ 				if (p_f_ghostingPercent < 0.001)
+ 					_ghostingSV = 0.0f;
+-				if (ImGui::SliderFloat("Ghosting Amount", &_ghostingSV, 0.0f, 100.0f, "%.0f"))
++				if (ImGui::SliderFloat(loc::T("Ghosting Amount"), &_ghostingSV, 0.0f, 100.0f, "%.0f"))
+ 				{
+ 					// Map sliderValue to ghosting percentage
+ 					// The mapping (1 - (1-x)^2) gives finer control near 100.
+@@ -1099,64 +1103,64 @@ Needs more ghosting for fast frame rates.");
+ 				ImGui::Separator();
+ 
+ 				// Mask Settings
+-				ImGui::Text("[ MASK SETTINGS ]");
+-				ImGui::RadioButton("None##Mask", &p_i_maskType, 0); ImGui::SameLine();
+-				ImGui::RadioButton("CGWG##Mask", &p_i_maskType, 1); ImGui::SameLine();
+-				ImGui::RadioButton("RGB##Mask", &p_i_maskType, 2);
+-				ImGui::DragFloat("Mask Size", &p_f_maskSize, 0.001f, 0.001f, 20.0f, "%.3f");
+-				ImGui::Checkbox("Slot Mask On/Off", &p_b_slot);
+-				ImGui::SliderFloat("Slot Mask Width", &p_f_slotW, 2.0f, 3.0f, "%.1f");
+-				ImGui::SliderFloat("Subpixels BGR/RGB", &p_f_bgr, 0.0f, 1.0f, "%.1f");
+-				ImGui::SliderFloat("Mask Brightness Dark", &p_f_maskLow, 0.0f, 1.0f, "%.2f");
+-				ImGui::SliderFloat("Mask Brightness Bright", &p_f_maskHigh, 0.0f, 1.0f, "%.2f");
++				ImGui::Text(loc::T("[ MASK SETTINGS ]"));
++				ImGui::RadioButton(loc::T("None##Mask"), &p_i_maskType, 0); ImGui::SameLine();
++				ImGui::RadioButton(loc::T("CGWG##Mask"), &p_i_maskType, 1); ImGui::SameLine();
++				ImGui::RadioButton(loc::T("RGB##Mask"), &p_i_maskType, 2);
++				ImGui::DragFloat(loc::T("Mask Size"), &p_f_maskSize, 0.001f, 0.001f, 20.0f, "%.3f");
++				ImGui::Checkbox(loc::T("Slot Mask On/Off"), &p_b_slot);
++				ImGui::SliderFloat(loc::T("Slot Mask Width"), &p_f_slotW, 2.0f, 3.0f, "%.1f");
++				ImGui::SliderFloat(loc::T("Subpixels BGR/RGB"), &p_f_bgr, 0.0f, 1.0f, "%.1f");
++				ImGui::SliderFloat(loc::T("Mask Brightness Dark"), &p_f_maskLow, 0.0f, 1.0f, "%.2f");
++				ImGui::SliderFloat(loc::T("Mask Brightness Bright"), &p_f_maskHigh, 0.0f, 1.0f, "%.2f");
+ 				ImGui::Separator();
+ 
+ 				// Geometry Settings
+-				ImGui::Text("[ ADVANCED GEOMETRY ]");
++				ImGui::Text(loc::T("[ ADVANCED GEOMETRY ]"));
+ 				if (bImGuiLockWarp)
+ 				{
+ 					float uniform = p_v_warp.x;
+ 					p_v_warp.y = p_v_warp.x;
+-					if (ImGui::DragFloat("Curvature", &uniform, 0.001f, -0.5f, 0.5f, "%.3f"))
++					if (ImGui::DragFloat(loc::T("Curvature"), &uniform, 0.001f, -0.5f, 0.5f, "%.3f"))
+ 						p_v_warp = glm::vec2(uniform);
+ 				}
+ 				else
+ 					ImGui::DragFloat2("Curvature", reinterpret_cast<float*>(&p_v_warp), 0.001f, -0.5f, 0.5f, "%.3f");
+ 				ImGui::SameLine(); ImGui::Spacing();
+-				ImGui::SameLine(); ImGui::Checkbox("Uniform##Curvature", &bImGuiLockWarp);
++				ImGui::SameLine(); ImGui::Checkbox(loc::T("Uniform##Curvature"), &bImGuiLockWarp);
+ 
+-				ImGui::SliderFloat("Barrel Distortion", &p_f_barrelDistortion, -0.30f, 5.00f, "%.2f");
+-				ImGui::SliderFloat("Corners Cut", &p_f_corner, 0.f, 100.f, "%.3f");
++				ImGui::SliderFloat(loc::T("Barrel Distortion"), &p_f_barrelDistortion, -0.30f, 5.00f, "%.2f");
++				ImGui::SliderFloat(loc::T("Corners Cut"), &p_f_corner, 0.f, 100.f, "%.3f");
+ 				ImGui::SameLine(); ImGui::Spacing();
+-				ImGui::SameLine(); ImGui::Checkbox("Smooth", &p_b_smoothCorner);
++				ImGui::SameLine(); ImGui::Checkbox(loc::T("Smooth"), &p_b_smoothCorner);
+ 				ImGui::Separator();
+ 
+ 				// Color Settings
+-				ImGui::Text("[ COLOR SETTINGS ]");
+-				ImGui::Checkbox("Use OKlab instead of linear RGB", &p_b_useOKlab);
++				ImGui::Text(loc::T("[ COLOR SETTINGS ]"));
++				ImGui::Checkbox(loc::T("Use OKlab instead of linear RGB"), &p_b_useOKlab);
+ 				HelpMarker("OKlab is a smoother color space than linear RGB.");
+-				ImGui::DragFloat("Brightness", &p_f_brightness, 0.01f, 0.0f, 100.0f, "%.2f");
+-				ImGui::DragFloat("Contrast", &p_f_contrast, 0.01f, 0.0f, 100.0f, "%.2f");
+-				ImGui::DragFloat("Black Level", &p_f_black, 0.01f, -1.0f, 1.00f, "%.2f");
+-				ImGui::DragFloat("Saturation", &p_f_saturation, 0.01f, 0.0f, 100.0f, "%.2f");
++				ImGui::DragFloat(loc::T("Brightness"), &p_f_brightness, 0.01f, 0.0f, 100.0f, "%.2f");
++				ImGui::DragFloat(loc::T("Contrast"), &p_f_contrast, 0.01f, 0.0f, 100.0f, "%.2f");
++				ImGui::DragFloat(loc::T("Black Level"), &p_f_black, 0.01f, -1.0f, 1.00f, "%.2f");
++				ImGui::DragFloat(loc::T("Saturation"), &p_f_saturation, 0.01f, 0.0f, 100.0f, "%.2f");
+ 				if (p_b_useOKlab) {
+-					ImGui::DragFloat("Hue", &p_f_hue, 0.001f, -M_PI, M_PI, "%.2f");
++					ImGui::DragFloat(loc::T("Hue"), &p_f_hue, 0.001f, -M_PI, M_PI, "%.2f");
+ 				} else {
+-					ImGui::DragFloat("Green <-to-> Red Hue", &p_f_hueRG, 0.01f, -2.50f, 2.50f, "%.2f");
+-					ImGui::DragFloat("Blue <-to-> Red Hue", &p_f_hueRB, 0.01f, -2.50f, 2.50f, "%.2f");
+-					ImGui::DragFloat("Blue <-to-> Green Hue", &p_f_hueGB, 0.01f, -2.50f, 2.50f, "%.2f");
++					ImGui::DragFloat(loc::T("Green <-to-> Red Hue"), &p_f_hueRG, 0.01f, -2.50f, 2.50f, "%.2f");
++					ImGui::DragFloat(loc::T("Blue <-to-> Red Hue"), &p_f_hueRB, 0.01f, -2.50f, 2.50f, "%.2f");
++					ImGui::DragFloat(loc::T("Blue <-to-> Green Hue"), &p_f_hueGB, 0.01f, -2.50f, 2.50f, "%.2f");
+ 				}
+-				ImGui::SliderFloat("Scan/Mask Brightness Dependence", &p_f_brDep, 0.0f, 0.5f, "%.3f");
+-				ImGui::SliderInt("Color Space: sRGB,PAL,NTSC-U,NTSC-J", &p_i_cSpace, 0, 3, "%1d");
++				ImGui::SliderFloat(loc::T("Scan/Mask Brightness Dependence"), &p_f_brDep, 0.0f, 0.5f, "%.3f");
++				ImGui::SliderInt(loc::T("Color Space: sRGB,PAL,NTSC-U,NTSC-J"), &p_i_cSpace, 0, 3, "%1d");
+ 				ImGui::Separator();
+ 
+ 				// Convergence Settings
+-				ImGui::Text("[ CONVERGENCE SETTINGS ]");
+-				ImGui::SliderFloat("Convergence Overall Strength", &p_f_cStr, 0.0f, 0.5f, "%.2f");
++				ImGui::Text(loc::T("[ CONVERGENCE SETTINGS ]"));
++				ImGui::SliderFloat(loc::T("Convergence Overall Strength"), &p_f_cStr, 0.0f, 0.5f, "%.2f");
+ 				HelpMarker("WARNING: Some FPS impact.");
+-				ImGui::SliderFloat("Convergence Red X-Axis", &p_f_convR, -3.0f, 3.0f, "%.2f");
+-				ImGui::SliderFloat("Convergence Green X-axis", &p_f_convG, -3.0f, 3.0f, "%.2f");
+-				ImGui::SliderFloat("Convergence Blue X-Axis", &p_f_convB, -3.0f, 3.0f, "%.2f");
++				ImGui::SliderFloat(loc::T("Convergence Red X-Axis"), &p_f_convR, -3.0f, 3.0f, "%.2f");
++				ImGui::SliderFloat(loc::T("Convergence Green X-axis"), &p_f_convG, -3.0f, 3.0f, "%.2f");
++				ImGui::SliderFloat(loc::T("Convergence Blue X-Axis"), &p_f_convB, -3.0f, 3.0f, "%.2f");
+ 			}
+ 
+ 			ImGui::PopItemWidth();
+diff --git a/src/AppleStyle.cpp b/src/AppleStyle.cpp
+index d2829e2..2ac306f 100644
+--- a/src/AppleStyle.cpp
++++ b/src/AppleStyle.cpp
+@@ -1,4 +1,5 @@
+ #include "AppleStyle.h"
++#include "Localization.h"
+ 
+ #include <SDL3/SDL_filesystem.h>
+ #include <imgui.h>
+@@ -88,6 +89,26 @@ void ApplyAppleStyle(InterfaceColor color)
+             io.Fonts->Clear();
+             io.Fonts->AddFontFromFileTTF(berkelium.string().c_str(), 16.0f);
+         }
++        const auto japanese = FindAssetPath("misaki_gothic_2nd.ttf");
++        if (!japanese.empty())
++        {
++            // Misaki Gothic is an 8x8 dot font (em = 8 dots), the same grid
++            // as Deathlord's own 7x8 glyphs. Rasterise it without
++            // oversampling so multiples of 8px stay pixel-sharp. Its glyphs
++            // merge into the default UI font and a standalone instance draws
++            // translated game text on the canvas and the Apple screen.
++            ImFontConfig config;
++            config.OversampleH = 1;
++            config.OversampleV = 1;
++            config.PixelSnapH = true;
++            if (!berkelium.empty())
++            {
++                ImFontConfig merge = config;
++                merge.MergeMode = true;
++                io.Fonts->AddFontFromFileTTF(japanese.string().c_str(), 16.0f, &merge);
++            }
++            loc::SetFont(io.Fonts->AddFontFromFileTTF(japanese.string().c_str(), 16.0f, &config));
++        }
+         if (!proggyTiny.empty())
+         {
+             // ProggyTiny is a 10px monospace bitmap font — much denser
+diff --git a/src/HgrText.cpp b/src/HgrText.cpp
+new file mode 100644
+index 0000000..1642a98
+--- /dev/null
++++ b/src/HgrText.cpp
+@@ -0,0 +1,212 @@
++#include "Emulator/StdAfx.h"
++#include "HgrText.h"
++
++#include "Emulator/Memory.h"
++#include "Emulator/Interface.h"
++#include "Emulator/Video.h"
++
++#include <unordered_map>
++
++namespace
++{
++
++// Deathlord's 96-glyph font ($20-$7F), as stored at $4B00 by the game engine
++// and at $6000 by the character module. Bit 7 (HGR palette) is masked off.
++constexpr std::uint8_t kFont[96][8] = {
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // ' '
++    {0x18, 0x18, 0x18, 0x18, 0x00, 0x18, 0x18, 0x00}, // '!'
++    {0x6C, 0x6C, 0x6C, 0x00, 0x00, 0x00, 0x00, 0x00}, // '"'
++    {0x36, 0x7F, 0x7F, 0x36, 0x7F, 0x7F, 0x36, 0x00}, // '#'
++    {0x18, 0x7E, 0x06, 0x7E, 0x60, 0x7E, 0x18, 0x00}, // '$'
++    {0x66, 0x66, 0x30, 0x18, 0x0C, 0x66, 0x66, 0x00}, // '%'
++    {0x0C, 0x1E, 0x1E, 0x0C, 0x7E, 0x36, 0x7C, 0x00}, // '&'
++    {0x38, 0x30, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00}, // "'"
++    {0x18, 0x0C, 0x06, 0x06, 0x06, 0x0C, 0x18, 0x00}, // '('
++    {0x18, 0x30, 0x60, 0x60, 0x60, 0x30, 0x18, 0x00}, // ')'
++    {0x08, 0x2A, 0x1C, 0x3E, 0x1C, 0x2A, 0x08, 0x00}, // '*'
++    {0x18, 0x18, 0x7E, 0x7E, 0x18, 0x18, 0x00, 0x00}, // '+'
++    {0x00, 0x00, 0x00, 0x00, 0x1C, 0x18, 0x0C, 0x00}, // ','
++    {0x00, 0x00, 0x00, 0x7C, 0x7C, 0x00, 0x00, 0x00}, // '-'
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x1C, 0x00}, // '.'
++    {0x60, 0x60, 0x30, 0x18, 0x0C, 0x06, 0x06, 0x00}, // '/'
++    {0x3C, 0x66, 0x76, 0x7E, 0x6E, 0x66, 0x3C, 0x00}, // '0'
++    {0x18, 0x1C, 0x18, 0x18, 0x18, 0x18, 0x3C, 0x00}, // '1'
++    {0x3C, 0x66, 0x60, 0x38, 0x0C, 0x06, 0x7E, 0x00}, // '2'
++    {0x7E, 0x60, 0x30, 0x38, 0x60, 0x66, 0x3C, 0x00}, // '3'
++    {0x30, 0x38, 0x3C, 0x36, 0x7E, 0x30, 0x30, 0x00}, // '4'
++    {0x7E, 0x06, 0x3E, 0x60, 0x60, 0x66, 0x3C, 0x00}, // '5'
++    {0x78, 0x0C, 0x06, 0x3E, 0x66, 0x66, 0x3C, 0x00}, // '6'
++    {0x7E, 0x60, 0x30, 0x18, 0x0C, 0x0C, 0x0C, 0x00}, // '7'
++    {0x3C, 0x66, 0x66, 0x3C, 0x66, 0x66, 0x3C, 0x00}, // '8'
++    {0x3C, 0x66, 0x66, 0x7C, 0x60, 0x30, 0x1E, 0x00}, // '9'
++    {0x00, 0x38, 0x38, 0x00, 0x38, 0x38, 0x00, 0x00}, // ':'
++    {0x00, 0x38, 0x38, 0x00, 0x38, 0x30, 0x18, 0x00}, // ';'
++    {0x30, 0x18, 0x0C, 0x06, 0x0C, 0x18, 0x30, 0x00}, // '<'
++    {0x00, 0x3E, 0x3E, 0x00, 0x3E, 0x3E, 0x00, 0x00}, // '='
++    {0x06, 0x0C, 0x18, 0x30, 0x18, 0x0C, 0x06, 0x00}, // '>'
++    {0x3C, 0x66, 0x30, 0x18, 0x18, 0x00, 0x18, 0x00}, // '?'
++    {0x3C, 0x46, 0x56, 0x76, 0x76, 0x06, 0x7C, 0x00}, // '@'
++    {0x18, 0x3C, 0x66, 0x66, 0x7E, 0x66, 0x66, 0x00}, // 'A'
++    {0x3E, 0x6C, 0x6C, 0x3C, 0x6C, 0x6C, 0x3E, 0x00}, // 'B'
++    {0x3C, 0x66, 0x06, 0x06, 0x06, 0x66, 0x3C, 0x00}, // 'C'
++    {0x3E, 0x6C, 0x6C, 0x6C, 0x6C, 0x6C, 0x3E, 0x00}, // 'D'
++    {0x7E, 0x6C, 0x0C, 0x1C, 0x0C, 0x6C, 0x7E, 0x00}, // 'E'
++    {0x7E, 0x6C, 0x0C, 0x1C, 0x0C, 0x0C, 0x1E, 0x00}, // 'F'
++    {0x3C, 0x66, 0x06, 0x06, 0x76, 0x66, 0x7C, 0x00}, // 'G'
++    {0x66, 0x66, 0x66, 0x7E, 0x66, 0x66, 0x66, 0x00}, // 'H'
++    {0x3C, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3C, 0x00}, // 'I'
++    {0x60, 0x60, 0x60, 0x60, 0x66, 0x66, 0x3C, 0x00}, // 'J'
++    {0x66, 0x36, 0x1E, 0x0E, 0x1E, 0x36, 0x66, 0x00}, // 'K'
++    {0x1E, 0x0C, 0x0C, 0x0C, 0x0C, 0x6C, 0x7E, 0x00}, // 'L'
++    {0x66, 0x7E, 0x7E, 0x66, 0x66, 0x66, 0x66, 0x00}, // 'M'
++    {0x66, 0x66, 0x6E, 0x7E, 0x76, 0x66, 0x66, 0x00}, // 'N'
++    {0x3C, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C, 0x00}, // 'O'
++    {0x3E, 0x6C, 0x6C, 0x3C, 0x0C, 0x0C, 0x1E, 0x00}, // 'P'
++    {0x3C, 0x66, 0x66, 0x66, 0x76, 0x26, 0x5C, 0x00}, // 'Q'
++    {0x3E, 0x66, 0x66, 0x3E, 0x1E, 0x36, 0x66, 0x00}, // 'R'
++    {0x3C, 0x66, 0x06, 0x3C, 0x60, 0x66, 0x3C, 0x00}, // 'S'
++    {0x7E, 0x7E, 0x18, 0x18, 0x18, 0x18, 0x3C, 0x00}, // 'T'
++    {0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C, 0x00}, // 'U'
++    {0x66, 0x66, 0x66, 0x66, 0x66, 0x3C, 0x18, 0x00}, // 'V'
++    {0x66, 0x66, 0x66, 0x66, 0x7E, 0x7E, 0x66, 0x00}, // 'W'
++    {0x66, 0x66, 0x3C, 0x18, 0x3C, 0x66, 0x66, 0x00}, // 'X'
++    {0x66, 0x66, 0x3C, 0x18, 0x18, 0x18, 0x18, 0x00}, // 'Y'
++    {0x7E, 0x66, 0x30, 0x18, 0x0C, 0x66, 0x7E, 0x00}, // 'Z'
++    {0x00, 0x00, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00}, // '['
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // '\\'
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // ']'
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // '^'
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // '_'
++    {0x0C, 0x18, 0x30, 0x60, 0x00, 0x00, 0x00, 0x00}, // '`'
++    {0x00, 0x00, 0x3C, 0x60, 0x7C, 0x66, 0x7C, 0x00}, // 'a'
++    {0x06, 0x06, 0x3E, 0x66, 0x66, 0x66, 0x3E, 0x00}, // 'b'
++    {0x00, 0x00, 0x3C, 0x66, 0x06, 0x66, 0x3C, 0x00}, // 'c'
++    {0x60, 0x60, 0x7C, 0x66, 0x66, 0x66, 0x7C, 0x00}, // 'd'
++    {0x00, 0x00, 0x3C, 0x66, 0x3E, 0x06, 0x3C, 0x00}, // 'e'
++    {0x38, 0x6C, 0x0C, 0x3E, 0x0C, 0x0C, 0x0C, 0x00}, // 'f'
++    {0x00, 0x00, 0x3C, 0x66, 0x66, 0x7C, 0x60, 0x3C}, // 'g'
++    {0x06, 0x06, 0x3E, 0x66, 0x66, 0x66, 0x66, 0x00}, // 'h'
++    {0x00, 0x18, 0x00, 0x18, 0x18, 0x18, 0x18, 0x00}, // 'i'
++    {0x60, 0x00, 0x60, 0x60, 0x60, 0x66, 0x66, 0x3C}, // 'j'
++    {0x06, 0x06, 0x66, 0x36, 0x1E, 0x36, 0x66, 0x00}, // 'k'
++    {0x1C, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3C, 0x00}, // 'l'
++    {0x00, 0x00, 0x3E, 0x7E, 0x7E, 0x7E, 0x7E, 0x00}, // 'm'
++    {0x00, 0x00, 0x3E, 0x66, 0x66, 0x66, 0x66, 0x00}, // 'n'
++    {0x00, 0x00, 0x3C, 0x66, 0x66, 0x66, 0x3C, 0x00}, // 'o'
++    {0x00, 0x00, 0x3E, 0x66, 0x66, 0x3E, 0x06, 0x06}, // 'p'
++    {0x00, 0x00, 0x7C, 0x66, 0x66, 0x7C, 0x60, 0x60}, // 'q'
++    {0x00, 0x00, 0x3E, 0x66, 0x06, 0x06, 0x06, 0x00}, // 'r'
++    {0x00, 0x00, 0x7C, 0x06, 0x3C, 0x60, 0x3E, 0x00}, // 's'
++    {0x0C, 0x0C, 0x3E, 0x0C, 0x0C, 0x6C, 0x38, 0x00}, // 't'
++    {0x00, 0x00, 0x66, 0x66, 0x66, 0x66, 0x7C, 0x00}, // 'u'
++    {0x00, 0x00, 0x66, 0x66, 0x66, 0x3C, 0x18, 0x00}, // 'v'
++    {0x00, 0x00, 0x7E, 0x7E, 0x7E, 0x7E, 0x3C, 0x00}, // 'w'
++    {0x00, 0x00, 0x66, 0x3C, 0x18, 0x3C, 0x66, 0x00}, // 'x'
++    {0x00, 0x00, 0x66, 0x66, 0x66, 0x7C, 0x60, 0x3C}, // 'y'
++    {0x00, 0x00, 0x7E, 0x30, 0x18, 0x0C, 0x7E, 0x00}, // 'z'
++    {0x18, 0x3C, 0x7E, 0x7E, 0x7E, 0x3C, 0x18, 0x00}, // '{'
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // '|'
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // '}'
++    {0x7E, 0x0E, 0x0E, 0x0E, 0x0E, 0x0E, 0x7E, 0x00}, // '~'
++    {0x7E, 0x70, 0x70, 0x70, 0x70, 0x70, 0x7E, 0x00}, // '\x7f'
++};
++
++std::uint64_t Pack(const std::uint8_t* bytes)
++{
++    std::uint64_t key = 0;
++    for (int i = 0; i < 8; ++i) key |= static_cast<std::uint64_t>(bytes[i] & 0x7F) << (i * 8);
++    return key;
++}
++
++struct GlyphTable
++{
++    std::unordered_map<std::uint64_t, std::pair<char, bool>> map;
++    GlyphTable()
++    {
++        for (int c = 95; c >= 0; --c)
++        {
++            std::uint8_t inverse[8];
++            for (int i = 0; i < 8; ++i) inverse[i] = static_cast<std::uint8_t>(kFont[c][i] ^ 0x7F);
++            // Iterate downward so the lowest code wins for duplicate blanks.
++            map[Pack(kFont[c])] = {static_cast<char>(0x20 + c), false};
++            map[Pack(inverse)] = {static_cast<char>(0x20 + c), true};
++        }
++        map[0] = {' ', false};
++        map[0x7F7F7F7F7F7F7F7FULL] = {' ', true};
++    }
++};
++
++const GlyphTable& Glyphs()
++{
++    static const GlyphTable table;
++    return table;
++}
++
++} // namespace
++
++bool HgrTextScreen::Scan()
++{
++    Video& video = GetVideo();
++    const bool hires = video.VideoGetSWHIRES() && !video.VideoGetSWTEXT();
++    if (!hires)
++    {
++        for (auto& row : cells_) row.fill(HgrTextCell{});
++        signature_ = 0;
++        return false;
++    }
++    const std::uint16_t base = video.VideoGetSWPAGE2() && !video.VideoGetSW80STORE() ? 0x4000 : 0x2000;
++    base_ = base;
++    const std::uint8_t* memory = MemGetMainPtr(0);
++    const GlyphTable& glyphs = Glyphs();
++    std::uint64_t hash = 1469598103934665603ULL;
++    for (int row = 0; row < Rows; ++row)
++    {
++        const std::uint16_t rowBase = static_cast<std::uint16_t>(
++            base + (row & 7) * 0x80 + (row >> 3) * 0x28);
++        for (int column = 0; column < Columns; ++column)
++        {
++            std::uint8_t bytes[8];
++            for (int line = 0; line < 8; ++line)
++                bytes[line] = memory[rowBase + line * 0x400 + column];
++            HgrTextCell cell;
++            const auto found = glyphs.map.find(Pack(bytes));
++            if (found != glyphs.map.end())
++            {
++                cell.ch = found->second.first;
++                cell.inverse = found->second.second;
++                cell.known = true;
++            }
++            cells_[row][column] = cell;
++            hash = (hash ^ static_cast<std::uint8_t>(cell.ch)) * 1099511628211ULL;
++            hash = (hash ^ (cell.inverse ? 1u : 0u) ^ (cell.known ? 2u : 0u)) * 1099511628211ULL;
++        }
++    }
++    signature_ = hash;
++    return true;
++}
++
++std::string HgrTextScreen::RowText(int row) const
++{
++    std::string text;
++    for (int column = 0; column < Columns; ++column)
++    {
++        const HgrTextCell& cell = cells_[row][column];
++        text.push_back(cell.known ? cell.ch : ' ');
++    }
++    return text;
++}
++
++std::uint64_t HgrTextScreen::RegionHash(int row0, int row1) const
++{
++    const std::uint8_t* memory = MemGetMainPtr(0);
++    std::uint64_t hash = 1469598103934665603ULL;
++    for (int row = row0; row <= row1; ++row)
++    {
++        const std::uint16_t rowBase = static_cast<std::uint16_t>(
++            base_ + (row & 7) * 0x80 + (row >> 3) * 0x28);
++        for (int line = 0; line < 8; ++line)
++            for (int column = 0; column < Columns; ++column)
++                hash = (hash ^ memory[rowBase + line * 0x400 + column]) * 1099511628211ULL;
++    }
++    return hash;
++}
+diff --git a/src/HgrText.h b/src/HgrText.h
+new file mode 100644
+index 0000000..12425be
+--- /dev/null
++++ b/src/HgrText.h
+@@ -0,0 +1,40 @@
++#pragma once
++
++// Recovers the text Deathlord has drawn on the Apple //e hi-res screen.
++// Every Deathlord module prints with the same 7x8 bitmap font on byte-aligned
++// 40x24 cells, so matching each cell's eight HGR bytes against that font
++// yields the visible text regardless of which program module drew it.
++
++#include <array>
++#include <cstdint>
++#include <string>
++
++struct HgrTextCell
++{
++    char ch = ' ';
++    bool inverse = false;
++    bool known = false; // false: the cell holds graphics, not a font glyph
++};
++
++class HgrTextScreen
++{
++public:
++    static constexpr int Columns = 40;
++    static constexpr int Rows = 24;
++
++    // Reads the currently displayed hi-res page. Returns false when the
++    // machine is not showing a hi-res page (nothing to recognise).
++    bool Scan();
++
++    const HgrTextCell& Cell(int column, int row) const { return cells_[row][column]; }
++    std::string RowText(int row) const;
++    std::uint64_t Signature() const { return signature_; }
++    // Hash of the raw hi-res bytes of whole character rows [row0, row1],
++    // used to recognise screens drawn as bitmaps rather than text.
++    std::uint64_t RegionHash(int row0, int row1) const;
++
++private:
++    std::array<std::array<HgrTextCell, Columns>, Rows> cells_{};
++    std::uint64_t signature_ = 0;
++    std::uint16_t base_ = 0x2000;
++};
+diff --git a/src/Localization.cpp b/src/Localization.cpp
+new file mode 100644
+index 0000000..213a65b
+--- /dev/null
++++ b/src/Localization.cpp
+@@ -0,0 +1,855 @@
++#include "Localization.h"
++
++#include "HgrText.h"
++
++#include <imgui.h>
++#include <nlohmann/json.hpp>
++
++#include <algorithm>
++#include <array>
++#include <cctype>
++#include <cfloat>
++#include <cmath>
++#include <cstdint>
++#include <cstdio>
++#include <cstdlib>
++#include <fstream>
++#include <optional>
++#include <regex>
++#include <unordered_map>
++
++namespace loc
++{
++namespace
++{
++
++struct Pattern
++{
++    std::regex expression;
++    std::string replacement;
++};
++
++struct State
++{
++    bool loaded = false;
++    bool enabled = true;
++    ImFont* font = nullptr;
++    std::unordered_map<std::string, std::string> ui;
++    std::unordered_map<std::string, std::string> uiResolved;
++    std::unordered_map<std::uint64_t, std::string> game; // hash of normalized key -> ja
++    std::vector<Pattern> patterns;
++    std::unordered_map<std::string, std::optional<std::string>> cache;
++};
++
++State& S()
++{
++    static State state;
++    return state;
++}
++
++// game.json identifies each English original only by this hash (FNV-1a,
++// 64-bit, over the normalized key) so it never has to ship the game's text.
++std::uint64_t KeyHash(const std::string& key)
++{
++    std::uint64_t hash = 14695981039346656037ULL;
++    for (const unsigned char c : key) hash = (hash ^ c) * 1099511628211ULL;
++    return hash;
++}
++
++// Whitespace never matters: Deathlord pre-wraps text at 18 columns, pads
++// signs with spaces and hard-wraps mid-word, so keys drop it entirely.
++std::string NormalizeKey(const std::string& text)
++{
++    std::string key;
++    key.reserve(text.size());
++    for (const unsigned char c : text)
++    {
++        if (c <= ' ') continue;
++        key.push_back(static_cast<char>(std::toupper(c)));
++    }
++    return key;
++}
++
++std::string Collapse(const std::string& text)
++{
++    std::string out;
++    bool space = false;
++    for (const unsigned char c : text)
++    {
++        if (c <= ' ')
++        {
++            space = !out.empty();
++            continue;
++        }
++        if (space) out.push_back(' ');
++        space = false;
++        out.push_back(static_cast<char>(std::toupper(c)));
++    }
++    return out;
++}
++
++std::optional<std::string> ApplyPatterns(const std::string& spaced)
++{
++    State& s = S();
++    for (const Pattern& pattern : s.patterns)
++    {
++        std::smatch match;
++        if (!std::regex_match(spaced, match, pattern.expression)) continue;
++        std::string out;
++        const std::string& r = pattern.replacement;
++        for (std::size_t i = 0; i < r.size(); ++i)
++        {
++            if (r[i] == '{' && i + 2 < r.size() && std::isdigit(static_cast<unsigned char>(r[i + 1])))
++            {
++                std::size_t end = r.find('}', i);
++                if (end != std::string::npos)
++                {
++                    const std::string spec = r.substr(i + 1, end - i - 1);
++                    const bool raw = !spec.empty() && spec.back() == 'r';
++                    const int group = std::atoi(spec.c_str());
++                    std::string capture = group < static_cast<int>(match.size())
++                        ? match[group].str() : std::string();
++                    while (!capture.empty() && capture.back() == ' ') capture.pop_back();
++                    while (!capture.empty() && capture.front() == ' ') capture.erase(capture.begin());
++                    if (!raw)
++                    {
++                        const auto found = s.game.find(KeyHash(NormalizeKey(capture)));
++                        if (found != s.game.end()) capture = found->second;
++                    }
++                    out += capture;
++                    i = end;
++                    continue;
++                }
++            }
++            out.push_back(r[i]);
++        }
++        // A pattern whose captures stayed English adds nothing; keep looking.
++        if (HasNonAscii(out)) return out;
++    }
++    return std::nullopt;
++}
++
++const std::string* Exact(const std::string& text)
++{
++    State& s = S();
++    const std::string key = NormalizeKey(text);
++    if (key.empty()) return nullptr;
++    const auto found = s.game.find(KeyHash(key));
++    return found == s.game.end() ? nullptr : &found->second;
++}
++
++// "Attack-East", "Yell-TROLL", "ALIGNMENT: GOOD": a known prompt followed by
++// the player's input or a value. The tail is translated when it is known and
++// otherwise kept verbatim, but only when it is a single word.
++std::optional<std::string> SplitPrompt(const std::string& spaced)
++{
++    for (std::size_t p = spaced.size(); p-- > 1;)
++    {
++        const char c = spaced[p];
++        if (c != '-' && c != ':' && c != '?' && c != '#') continue;
++        const std::string* prompt = Exact(spaced.substr(0, p + 1));
++        if (!prompt) continue;
++        std::string rest = spaced.substr(p + 1);
++        while (!rest.empty() && rest.front() == ' ') rest.erase(rest.begin());
++        if (rest.empty()) return *prompt;
++        if (const std::string* known = Exact(rest)) return *prompt + *known;
++        if (rest.find(' ') != std::string::npos) return std::nullopt;
++        return *prompt + rest;
++    }
++    return std::nullopt;
++}
++
++// Exact matches may span lines; patterns and prompt splitting are limited to
++// single lines so they never swallow a neighbouring message.
++const std::string* Find(const std::string& joined, bool fuzzy = true)
++{
++    State& s = S();
++    const std::string key = NormalizeKey(joined);
++    if (key.empty()) return nullptr;
++    const auto exact = s.game.find(KeyHash(key));
++    if (exact != s.game.end()) return &exact->second;
++    if (!fuzzy) return nullptr;
++    auto cached = s.cache.find(key);
++    if (cached == s.cache.end())
++    {
++        const std::string spaced = Collapse(joined);
++        std::optional<std::string> value = ApplyPatterns(spaced);
++        if (!value) value = SplitPrompt(spaced);
++        if (s.cache.size() > 20000) s.cache.clear();
++        cached = s.cache.emplace(key, std::move(value)).first;
++    }
++    return cached->second ? &*cached->second : nullptr;
++}
++
++} // namespace
++
++bool Load(const std::filesystem::path& directory)
++{
++    State& s = S();
++    s.ui.clear();
++    s.uiResolved.clear();
++    s.game.clear();
++    s.patterns.clear();
++    s.cache.clear();
++    bool any = false;
++    try
++    {
++        std::ifstream uiFile(directory / "ui.json");
++        if (uiFile)
++        {
++            const nlohmann::json json = nlohmann::json::parse(uiFile);
++            for (const auto& [english, japanese] : json.at("strings").items())
++                if (japanese.is_string() && !japanese.get<std::string>().empty())
++                    s.ui[english] = japanese.get<std::string>();
++            any = true;
++        }
++    }
++    catch (const std::exception&) {}
++    try
++    {
++        std::ifstream gameFile(directory / "game.json");
++        if (gameFile)
++        {
++            const nlohmann::json json = nlohmann::json::parse(gameFile);
++            for (const auto& entry : json.at("entries"))
++            {
++                if (!entry.contains("ja") || !entry["ja"].is_string()) continue;
++                const std::string japanese = entry["ja"].get<std::string>();
++                if (japanese.empty()) continue;
++                if (entry.contains("key"))
++                    s.game.emplace(std::stoull(entry["key"].get<std::string>(), nullptr, 16),
++                                   japanese);
++                else if (const std::string key = NormalizeKey(entry.at("src").get<std::string>());
++                         !key.empty())
++                    s.game.emplace(KeyHash(key), japanese);
++            }
++            if (json.contains("patterns"))
++            {
++                for (const auto& entry : json["patterns"])
++                {
++                    try
++                    {
++                        s.patterns.push_back({std::regex(entry.at("re").get<std::string>(),
++                                                         std::regex::ECMAScript | std::regex::icase
++                                                             | std::regex::optimize),
++                                              entry.at("ja").get<std::string>()});
++                    }
++                    catch (const std::exception&) {}
++                }
++            }
++            any = true;
++        }
++    }
++    catch (const std::exception&) {}
++    s.loaded = any;
++    return any;
++}
++
++bool Loaded() { return S().loaded; }
++bool Enabled() { return S().enabled && S().loaded; }
++void SetEnabled(bool enabled) { S().enabled = enabled; }
++
++const char* T(const char* english)
++{
++    if (!english || !Enabled()) return english;
++    State& s = S();
++    auto resolved = s.uiResolved.find(english);
++    if (resolved != s.uiResolved.end()) return resolved->second.c_str();
++
++    std::string visible = english;
++    std::string suffix;
++    const std::size_t hashes = visible.find("##");
++    if (hashes != std::string::npos)
++    {
++        suffix = visible.substr(hashes);
++        visible.resize(hashes);
++    }
++    std::string result = english;
++    const auto found = s.ui.find(visible);
++    if (found != s.ui.end())
++        result = found->second + suffix;
++    else if (const std::string* game = LookupGame(visible); game && !visible.empty())
++        result = *game + suffix;
++    return s.uiResolved.emplace(english, std::move(result)).first->second.c_str();
++}
++
++std::string T(const std::string& english) { return T(english.c_str()); }
++
++const std::string* LookupGame(const std::string& text)
++{
++    if (!Enabled()) return nullptr;
++    return Find(text);
++}
++
++std::string Display(const std::string& text)
++{
++    if (!Enabled() || text.empty() || HasNonAscii(text)) return text;
++    const auto ui = S().ui.find(text);
++    if (ui != S().ui.end()) return ui->second;
++    if (const std::string* game = Find(text)) return *game;
++    return text;
++}
++
++std::vector<SpanMatch> MatchLines(const std::vector<std::string>& lines, int maxSpan)
++{
++    std::vector<SpanMatch> matches;
++    if (!Enabled()) return matches;
++    auto blank = [](const std::string& line)
++    {
++        return std::all_of(line.begin(), line.end(),
++                           [](unsigned char c) { return c <= ' '; });
++    };
++    const int count = static_cast<int>(lines.size());
++    for (int first = 0; first < count;)
++    {
++        if (blank(lines[first]))
++        {
++            ++first;
++            continue;
++        }
++        int matched = 0;
++        const std::string* text = nullptr;
++        for (int span = std::min(maxSpan, count - first); span >= 1; --span)
++        {
++            if (blank(lines[first + span - 1])) continue;
++            std::string joined;
++            for (int i = 0; i < span; ++i)
++            {
++                if (i) joined.push_back(' ');
++                joined += lines[first + i];
++            }
++            text = Find(joined, span == 1);
++            if (text)
++            {
++                matched = span;
++                break;
++            }
++        }
++        if (matched)
++        {
++            matches.push_back({first, matched, *text});
++            first += matched;
++        }
++        else ++first;
++    }
++    return matches;
++}
++
++void NoteUnmatched(const std::string& text)
++{
++    static const bool enabled = std::getenv("DLRL_DUMP_UNMATCHED") != nullptr;
++    if (!enabled || !Enabled()) return;
++    const std::string key = NormalizeKey(text);
++    if (key.empty() || HasNonAscii(text)) return;
++    static std::unordered_map<std::string, bool> seen;
++    if (seen.emplace(key, true).second) std::fprintf(stderr, "UNMATCHED|%s|\n", text.c_str());
++}
++
++bool HasNonAscii(const std::string& text)
++{
++    return std::any_of(text.begin(), text.end(),
++                       [](char c) { return static_cast<unsigned char>(c) >= 0x80; });
++}
++
++void SetFont(ImFont* font) { S().font = font; }
++ImFont* Font() { return S().font ? S().font : ImGui::GetFont(); }
++
++float SnapSize(float size)
++{
++    // Misaki is drawn on its native 8-dot grid: whole multiples of 8px.
++    return std::max(8.0f, std::round(size / 8.0f) * 8.0f);
++}
++
++float TextWidth(const std::string& text, float size)
++{
++    size = SnapSize(size);
++    return Font()->CalcTextSizeA(size, FLT_MAX, 0.0f, text.c_str(),
++                                 text.c_str() + text.size()).x;
++}
++
++std::vector<std::string> Wrap(const std::string& text, float size, float width)
++{
++    // Japanese breaks between any two characters; keep ASCII words whole and
++    // apply basic kinsoku so punctuation never starts a line.
++    static const std::string noLineStart =
++        "、。，．・ー」』）)]！？!?…ぁぃぅぇぉっゃゅょァィゥェォッャュョ:：";
++    std::vector<std::string> tokens;
++    for (std::size_t i = 0; i < text.size();)
++    {
++        const unsigned char c = static_cast<unsigned char>(text[i]);
++        if (c == '\n')
++        {
++            tokens.emplace_back("\n");
++            ++i;
++        }
++        else if (c < 0x80)
++        {
++            if (c == ' ')
++            {
++                tokens.emplace_back(" ");
++                ++i;
++                continue;
++            }
++            std::size_t j = i;
++            while (j < text.size() && static_cast<unsigned char>(text[j]) < 0x80
++                   && text[j] != ' ' && text[j] != '\n')
++                ++j;
++            tokens.push_back(text.substr(i, j - i));
++            i = j;
++        }
++        else
++        {
++            const std::size_t length = c >= 0xF0 ? 4 : c >= 0xE0 ? 3 : 2;
++            tokens.push_back(text.substr(i, length));
++            i += length;
++        }
++    }
++
++    std::vector<std::string> lines(1);
++    float lineWidth = 0;
++    for (std::size_t index = 0; index < tokens.size(); ++index)
++    {
++        const std::string& token = tokens[index];
++        if (token == "\n")
++        {
++            lines.emplace_back();
++            lineWidth = 0;
++            continue;
++        }
++        if (token == " " && lines.back().empty()) continue;
++        const float tokenWidth = TextWidth(token, size);
++        const bool forbidden = noLineStart.find(token) != std::string::npos
++                               && static_cast<unsigned char>(token[0]) >= 0x80;
++        const bool forbiddenAscii = token.size() == 1 && std::string(")]!?.,:").find(token) != std::string::npos;
++        if (lineWidth + tokenWidth > width + 0.5f && !lines.back().empty()
++            && !forbidden && !forbiddenAscii)
++        {
++            while (!lines.back().empty() && lines.back().back() == ' ') lines.back().pop_back();
++            lines.emplace_back();
++            lineWidth = 0;
++            if (token == " ") continue;
++        }
++        lines.back() += token;
++        lineWidth += tokenWidth;
++    }
++    while (!lines.empty() && lines.back().empty()) lines.pop_back();
++    return lines;
++}
++
++void DrawJapanese(ImDrawList* draw, const ImVec2& position, float size,
++              unsigned int color, const std::string& text)
++{
++    size = SnapSize(size);
++    draw->AddText(Font(), size, ImVec2(std::floor(position.x), std::floor(position.y)),
++                  color, text.c_str(), text.c_str() + text.size());
++}
++
++namespace
++{
++
++struct OverlayItem
++{
++    int column0 = 0, row0 = 0, column1 = 0, row1 = 0; // inclusive cells
++    std::string text;
++    bool inverse = false;
++    bool centered = false;
++};
++
++struct Segment
++{
++    int row = 0, column0 = 0, column1 = 0;
++    std::string text;
++    bool inverse = false;
++    int chain = -1;
++};
++
++std::vector<OverlayItem> BuildOverlay(const HgrTextScreen& screen)
++{
++    std::vector<Segment> segments;
++    std::array<std::vector<int>, HgrTextScreen::Rows> byRow;
++    for (int row = 0; row < HgrTextScreen::Rows; ++row)
++    {
++        int column = 0;
++        while (column < HgrTextScreen::Columns)
++        {
++            auto content = [&](int c)
++            {
++                const HgrTextCell& cell = screen.Cell(c, row);
++                return cell.known && (cell.ch != ' ' || cell.inverse);
++            };
++            if (!content(column))
++            {
++                ++column;
++                continue;
++            }
++            Segment segment;
++            segment.row = row;
++            segment.column0 = column;
++            int last = column;
++            int inverseCount = 0, total = 0;
++            while (column < HgrTextScreen::Columns)
++            {
++                if (content(column))
++                {
++                    last = column;
++                    ++total;
++                    if (screen.Cell(column, row).inverse) ++inverseCount;
++                    ++column;
++                    continue;
++                }
++                // A single blank cell is a word space; two end the segment.
++                if (column + 1 < HgrTextScreen::Columns && screen.Cell(column, row).known
++                    && content(column + 1))
++                {
++                    ++column;
++                    continue;
++                }
++                break;
++            }
++            segment.column1 = last;
++            for (int c = segment.column0; c <= last; ++c)
++            {
++                const HgrTextCell& cell = screen.Cell(c, row);
++                segment.text.push_back(cell.known ? cell.ch : ' ');
++            }
++            segment.inverse = inverseCount * 2 > total;
++            byRow[row].push_back(static_cast<int>(segments.size()));
++            segments.push_back(std::move(segment));
++        }
++    }
++
++    auto overlap = [](const Segment& a, const Segment& b)
++    {
++        return std::min(a.column1, b.column1) - std::max(a.column0, b.column0) + 1;
++    };
++
++    std::vector<OverlayItem> items;
++    for (std::size_t start = 0; start < segments.size(); ++start)
++    {
++        if (segments[start].chain >= 0) continue;
++        // Follow vertically overlapping segments (allowing one blank row) to
++        // rebuild multi-line messages printed into a window.
++        std::vector<int> chain{static_cast<int>(start)};
++        std::vector<std::string> lines{segments[start].text};
++        std::vector<int> lineSegment{static_cast<int>(start)};
++        segments[start].chain = static_cast<int>(start);
++        int current = static_cast<int>(start);
++        while (true)
++        {
++            int next = -1;
++            int skipped = 0;
++            for (int gap = 1; gap <= 2 && next < 0; ++gap)
++            {
++                const int row = segments[current].row + gap;
++                if (row >= HgrTextScreen::Rows) break;
++                int best = 0;
++                for (const int candidate : byRow[row])
++                {
++                    if (segments[candidate].chain >= 0) continue;
++                    if (segments[candidate].inverse != segments[current].inverse) continue;
++                    const int amount = overlap(segments[current], segments[candidate]);
++                    if (amount > best)
++                    {
++                        best = amount;
++                        next = candidate;
++                    }
++                }
++                if (next < 0)
++                {
++                    // Only skip a row that has nothing at all under us.
++                    bool occupied = false;
++                    for (const int candidate : byRow[row])
++                        if (overlap(segments[current], segments[candidate]) > 0) occupied = true;
++                    if (occupied) break;
++                    skipped = gap;
++                }
++            }
++            if (next < 0) break;
++            for (int i = 0; i < skipped; ++i)
++            {
++                lines.emplace_back();
++                lineSegment.push_back(-1);
++            }
++            segments[next].chain = static_cast<int>(start);
++            lines.push_back(segments[next].text);
++            lineSegment.push_back(next);
++            current = next;
++        }
++
++        const std::vector<SpanMatch> matches = MatchLines(lines);
++        std::vector<bool> covered(lines.size(), false);
++        for (const SpanMatch& match : matches)
++            for (int i = match.first; i < match.first + match.count; ++i) covered[i] = true;
++        // A line left unmatched may be two columns separated by one space
++        // ("Nintoshi Troll"). Split it into words only when known phrases
++        // cover every word, so sentences never come out half translated.
++        for (std::size_t i = 0; i < lines.size(); ++i)
++        {
++            if (covered[i] || lineSegment[i] < 0) continue;
++            const Segment& segment = segments[lineSegment[i]];
++            struct Word { int column0, column1; std::string text; };
++            std::vector<Word> words;
++            for (int c = 0; c < static_cast<int>(segment.text.size());)
++            {
++                if (segment.text[c] == ' ') { ++c; continue; }
++                int end = c;
++                while (end < static_cast<int>(segment.text.size()) && segment.text[end] != ' ') ++end;
++                words.push_back({segment.column0 + c, segment.column0 + end - 1,
++                                 segment.text.substr(c, end - c)});
++                c = end;
++            }
++            if (words.size() < 2) continue;
++            std::vector<OverlayItem> parts;
++            bool complete = true;
++            for (std::size_t w = 0; w < words.size() && complete;)
++            {
++                std::size_t taken = 0;
++                for (std::size_t length = words.size() - w; length >= 1 && !taken; --length)
++                {
++                    if (length == words.size()) continue; // the whole line already failed
++                    std::string phrase;
++                    for (std::size_t k = 0; k < length; ++k)
++                        phrase += (k ? " " : "") + words[w + k].text;
++                    if (const std::string* text = Find(phrase, false))
++                    {
++                        OverlayItem part;
++                        part.column0 = words[w].column0;
++                        part.column1 = words[w + length - 1].column1;
++                        part.row0 = part.row1 = segment.row;
++                        part.text = *text;
++                        part.inverse = segment.inverse;
++                        parts.push_back(std::move(part));
++                        taken = length;
++                    }
++                }
++                if (!taken) complete = false;
++                w += taken;
++            }
++            if (complete)
++                for (OverlayItem& part : parts) items.push_back(std::move(part));
++            else
++                NoteUnmatched(segment.text);
++        }
++
++        for (const SpanMatch& match : matches)
++        {
++            OverlayItem item;
++            item.column0 = HgrTextScreen::Columns;
++            item.row0 = HgrTextScreen::Rows;
++            item.column1 = -1;
++            item.row1 = -1;
++            item.text = match.text;
++            int segmentsInSpan = 0;
++            for (int i = match.first; i < match.first + match.count; ++i)
++            {
++                const int index = lineSegment[i];
++                if (index < 0) continue;
++                const Segment& segment = segments[index];
++                item.column0 = std::min(item.column0, segment.column0);
++                item.column1 = std::max(item.column1, segment.column1);
++                item.row0 = std::min(item.row0, segment.row);
++                item.row1 = std::max(item.row1, segment.row);
++                item.inverse = segment.inverse;
++                ++segmentsInSpan;
++            }
++            // Centre a single line only when the English was centred in its
++            // blank surroundings (menus); window text stays left-aligned.
++            if (segmentsInSpan == 1)
++            {
++                auto blankRun = [&](int column, int step)
++                {
++                    int count = 0;
++                    for (int c = column; c >= 0 && c < HgrTextScreen::Columns; c += step)
++                    {
++                        const HgrTextCell& cell = screen.Cell(c, item.row0);
++                        if (!cell.known || cell.ch != ' ' || cell.inverse) break;
++                        ++count;
++                    }
++                    return count;
++                };
++                const int left = blankRun(item.column0 - 1, -1);
++                const int right = blankRun(item.column1 + 1, 1);
++                item.centered = left > 0 && std::abs(left - right) <= 1;
++            }
++            if (item.column1 >= 0) items.push_back(std::move(item));
++        }
++    }
++    return items;
++}
++
++} // namespace
++
++// Raw hi-res bytes of rows 7-16 (EA logo and copyright) on the boot menu,
++// whose UTILITIES / CHARACTER OPTIONS / PLAY A GAME choices are large bitmap
++// lettering. The menu flashes between two frames.
++constexpr std::uint64_t kBootMenuHashes[] = {0xd58be0fb62b670d5ULL, 0xf0a24cd95dc01824ULL};
++
++void DrawAppleOverlay(ImDrawList* draw, const ImVec2& topLeft, const ImVec2& size)
++{
++    if (!Enabled()) return;
++    static HgrTextScreen screen;
++    static std::uint64_t lastSignature = 0;
++    static std::vector<OverlayItem> items;
++    if (!screen.Scan())
++    {
++        items.clear();
++        lastSignature = 0;
++        return;
++    }
++    if (screen.Signature() != lastSignature)
++    {
++        items = BuildOverlay(screen);
++        lastSignature = screen.Signature();
++        if (std::getenv("DLRL_DUMP_TEXT"))
++        {
++            std::fputs("--- screen text ---\n", stderr);
++            for (int row = 0; row < HgrTextScreen::Rows; ++row)
++            {
++                std::string line;
++                for (int column = 0; column < HgrTextScreen::Columns; ++column)
++                {
++                    const HgrTextCell& cell = screen.Cell(column, row);
++                    line.push_back(!cell.known ? '?' : cell.inverse
++                        ? static_cast<char>(std::tolower(static_cast<unsigned char>(cell.ch == ' ' ? '_' : cell.ch)))
++                        : cell.ch);
++                }
++                std::fprintf(stderr, "%2d|%s|\n", row, line.c_str());
++            }
++            for (const OverlayItem& item : items)
++                std::fprintf(stderr, "item %d,%d-%d,%d %s\n", item.column0, item.row0,
++                             item.column1, item.row1, item.text.c_str());
++        }
++    }
++
++    const float cellWidth = size.x / HgrTextScreen::Columns;
++    const float cellHeight = size.y / HgrTextScreen::Rows;
++    const ImU32 white = IM_COL32(255, 255, 255, 255);
++    const ImU32 black = IM_COL32(0, 0, 0, 255);
++
++    // The boot menu's three choices are drawn as large bitmap lettering, not
++    // with the font. Recognise the screen by its copyright line instead.
++    static const bool dumpText = std::getenv("DLRL_DUMP_TEXT") != nullptr;
++    if (dumpText && screen.Signature() != 0)
++    {
++        static std::uint64_t lastMenuHash = 0;
++        const std::uint64_t hash = screen.RegionHash(7, 16);
++        if (hash != lastMenuHash)
++            std::fprintf(stderr, "menu hash %016llx\n", static_cast<unsigned long long>(hash));
++        lastMenuHash = hash;
++    }
++    for (int pass = 0; pass < 1; ++pass)
++    {
++        const std::uint64_t menuHash = screen.RegionHash(7, 16);
++        if (menuHash != kBootMenuHashes[0] && menuHash != kBootMenuHashes[1]) continue;
++        const float lineTop = topLeft.y + size.y * (142.5f / 192.0f);
++        const float lineBottom = topLeft.y + size.y * (174.5f / 192.0f);
++        draw->AddRectFilled(ImVec2(topLeft.x + cellWidth, lineTop),
++                            ImVec2(topLeft.x + size.x - cellWidth, lineBottom), black);
++        static const char* const choices[] = {
++            "U  ユーティリティ", "C  キャラクター設定", "P  ゲームを始める"};
++        const float fontSize = SnapSize((lineBottom - lineTop) / 3.0f);
++        const ImU32 violet = IM_COL32(220, 120, 255, 255);
++        for (int index = 0; index < 3; ++index)
++        {
++            const std::string choice = choices[index];
++            const float y = lineTop + (lineBottom - lineTop) * index / 3.0f
++                          + ((lineBottom - lineTop) / 3.0f - fontSize) * 0.5f;
++            DrawJapanese(draw, ImVec2(topLeft.x + (size.x - TextWidth(choice, fontSize)) * 0.5f, y),
++                         fontSize, violet, choice);
++        }
++        break;
++    }
++
++    // Cover every source first and draw the translations afterwards, so a
++    // neighbour's background never clips glyphs that reach into its row.
++    struct TextDraw
++    {
++        ImVec2 position;
++        float size;
++        ImU32 color;
++        std::string text;
++    };
++    std::vector<TextDraw> texts;
++    std::vector<std::pair<ImVec2, ImVec2>> inverseBars;
++    for (const OverlayItem& item : items)
++    {
++        // Grow single-line labels over neighbouring blank cells when the
++        // translation is wider than the English it replaces.
++        int column0 = item.column0;
++        int column1 = item.column1;
++        const int rows = item.row1 - item.row0 + 1;
++        float fontSize = SnapSize(cellHeight);
++        auto blankColumn = [&](int column)
++        {
++            if (column < 0 || column >= HgrTextScreen::Columns) return false;
++            for (int row = item.row0; row <= item.row1; ++row)
++            {
++                const HgrTextCell& cell = screen.Cell(column, row);
++                if (!cell.known || cell.ch != ' ' || cell.inverse != item.inverse) return false;
++            }
++            return true;
++        };
++        std::vector<std::string> lines;
++        for (int attempt = 0; attempt < 24; ++attempt)
++        {
++            const float width = (column1 - column0 + 1) * cellWidth;
++            lines = Wrap(item.text, fontSize, width);
++            const float height = lines.size() * fontSize;
++            if (height <= rows * cellHeight + 0.5f) break;
++            bool grew = false;
++            if (blankColumn(column1 + 1)) { ++column1; grew = true; }
++            if (blankColumn(column0 - 1)) { --column0; grew = true; }
++            if (!grew)
++            {
++                if (fontSize <= 8.0f || fontSize <= cellHeight * 0.5f) break;
++                fontSize -= 8.0f;
++            }
++        }
++        const ImVec2 min(topLeft.x + column0 * cellWidth, topLeft.y + item.row0 * cellHeight);
++        const ImVec2 max(topLeft.x + (column1 + 1) * cellWidth,
++                         topLeft.y + (item.row1 + 1) * cellHeight);
++        // Cover the original glyphs of the source cells too.
++        const ImVec2 sourceMin(topLeft.x + item.column0 * cellWidth, min.y);
++        const ImVec2 sourceMax(topLeft.x + (item.column1 + 1) * cellWidth, max.y);
++        // NTSC colour bleed and the half-pixel palette shift smear glyph
++        // edges past their cell; pad into neighbouring blank cells, and a
++        // little upward into the (always empty) bottom line of the row above.
++        auto emptyColumn = [&](int column)
++        {
++            if (column < 0 || column >= HgrTextScreen::Columns) return false;
++            for (int row = item.row0; row <= item.row1; ++row)
++            {
++                const HgrTextCell& cell = screen.Cell(column, row);
++                if (!cell.known || cell.ch != ' ' || cell.inverse) return false;
++            }
++            return true;
++        };
++        const float left = std::min(min.x, sourceMin.x);
++        const float right = std::max(max.x, sourceMax.x);
++        const float padLeft = emptyColumn(std::min(column0, item.column0) - 1) ? cellWidth * 0.5f : 0.0f;
++        const float padRight = emptyColumn(std::max(column1, item.column1) + 1) ? cellWidth * 0.5f : 0.0f;
++        const float padTop = cellHeight * 0.12f;
++        draw->AddRectFilled(ImVec2(left - padLeft, min.y - padTop),
++                            ImVec2(right + padRight, max.y), black);
++        if (item.inverse) inverseBars.push_back({ImVec2(left, min.y), ImVec2(right, max.y)});
++        const float lineHeight = fontSize;
++        const float textHeight = lines.size() * lineHeight;
++        float y = min.y + std::max(0.0f, (max.y - min.y - textHeight) * 0.5f);
++        for (const std::string& line : lines)
++        {
++            float x = min.x;
++            if (item.centered)
++                x = min.x + std::max(0.0f, ((max.x - min.x) - TextWidth(line, fontSize)) * 0.5f);
++            texts.push_back({ImVec2(x, y), fontSize, item.inverse ? black : white, line});
++            if (dumpText && item.inverse)
++                std::fprintf(stderr, "inv rect y %.1f-%.1f text y %.1f size %.0f cell %.1f\n",
++                             min.y, max.y, y, fontSize, cellHeight);
++            y += lineHeight;
++        }
++    }
++    for (const auto& bar : inverseBars) draw->AddRectFilled(bar.first, bar.second, white);
++    for (const TextDraw& text : texts)
++        DrawJapanese(draw, text.position, text.size, text.color, text.text);
++}
++
++} // namespace loc
+diff --git a/src/Localization.h b/src/Localization.h
+new file mode 100644
+index 0000000..2e1a257
+--- /dev/null
++++ b/src/Localization.h
+@@ -0,0 +1,62 @@
++#pragma once
++
++// Japanese localization layer.
++//
++// * UI chrome (menus, dialogs, panels) goes through T().
++// * Game text is never patched inside the 6502 program. Instead the host
++//   recognises the English text Deathlord printed (from the message hooks or
++//   by reading the hi-res screen) and draws the translation over it.
++
++#include <filesystem>
++#include <string>
++#include <vector>
++
++struct ImDrawList;
++struct ImFont;
++struct ImVec2;
++
++namespace loc
++{
++
++bool Load(const std::filesystem::path& directory);
++bool Loaded();
++bool Enabled();
++void SetEnabled(bool enabled);
++
++// UI strings. "Label##id" translates "Label" and keeps "##id".
++const char* T(const char* english);
++std::string T(const std::string& english);
++
++// Game text, matched ignoring whitespace and case. nullptr when unknown.
++const std::string* LookupGame(const std::string& text);
++// Translated text when enabled and known; otherwise the input.
++std::string Display(const std::string& text);
++
++struct SpanMatch
++{
++    int first = 0;
++    int count = 0;
++    std::string text;
++};
++// Greedily covers consecutive lines (oldest first) with the longest spans
++// that form a known message. Empty strings are blank lines.
++std::vector<SpanMatch> MatchLines(const std::vector<std::string>& lines,
++                                  int maxSpan = 12);
++
++bool HasNonAscii(const std::string& text);
++// Debug aid: with DLRL_DUMP_UNMATCHED set, prints each distinct untranslated line once.
++void NoteUnmatched(const std::string& text);
++
++void SetFont(ImFont* font);
++ImFont* Font();
++float SnapSize(float size);
++float TextWidth(const std::string& text, float size);
++std::vector<std::string> Wrap(const std::string& text, float size, float width);
++void DrawJapanese(ImDrawList* draw, const ImVec2& position, float size,
++              unsigned int color, const std::string& text);
++
++// Draws Japanese replacements over an Apple //e image whose active 560x384
++// area occupies [topLeft, topLeft + size].
++void DrawAppleOverlay(ImDrawList* draw, const ImVec2& topLeft, const ImVec2& size);
++
++} // namespace loc
+diff --git a/src/ModernUI.cpp b/src/ModernUI.cpp
+index 7199bf5..f02af12 100644
+--- a/src/ModernUI.cpp
++++ b/src/ModernUI.cpp
+@@ -5,6 +5,7 @@
+ #include "DlrlData.h"
+ #include "DlrlHooks.h"
+ #include "InventoryRules.h"
++#include "Localization.h"
+ #include "Emulator/Memory.h"
+ 
+ #include <imgui.h>
+@@ -16,6 +17,7 @@
+ #include <cctype>
+ #include <cstring>
+ #include <cstdio>
++#include <cstdlib>
+ #include <fstream>
+ #include <string>
+ 
+@@ -196,18 +198,33 @@ ImVec2 Point(const ImVec2& origin, float scale, float x, float y)
+ constexpr float DeathlordGlyphWidth = 14.0f;
+ constexpr float DeathlordGlyphHeight = 16.0f;
+ 
+-float DeathlordTextWidth(const std::string& text, float logicalSize = 16.0f)
++float DeathlordTextWidth(const std::string& source, float logicalSize = 16.0f)
+ {
++    const std::string text = loc::Display(source);
++    if (loc::HasNonAscii(text)) return loc::TextWidth(text, logicalSize);
+     return static_cast<float>(text.size()) * DeathlordGlyphWidth
+          * (logicalSize / DeathlordGlyphHeight);
+ }
+ 
+ void AddDeathlordText(ImDrawList* draw, const Texture& charset,
+                       const ImVec2& origin, float scale, float x, float y,
+-                      ImU32 color, const std::string& text,
++                      ImU32 color, const std::string& source,
+                       float logicalSize = 16.0f, bool inverse = false)
+ {
+-    if (!charset.IsValid() || text.empty()) return;
++    if (!charset.IsValid() || source.empty()) return;
++    const std::string text = loc::Display(source);
++    if (loc::HasNonAscii(text))
++    {
++        const ImVec2 position = Point(origin, scale, x, y);
++        // Misaki's native size is 8px; never go below it.
++        const float size = std::max(8.0f, std::round(logicalSize * scale));
++        if (inverse)
++            draw->AddRectFilled(position,
++                                Point(origin, scale, x + loc::TextWidth(text, logicalSize),
++                                      y + logicalSize), color);
++        loc::DrawJapanese(draw, position, size, inverse ? IM_COL32(5, 7, 5, 255) : color, text);
++        return;
++    }
+ 
+     const float fontScale = logicalSize / DeathlordGlyphHeight;
+     const float glyphWidth = DeathlordGlyphWidth * fontScale;
+@@ -310,17 +327,27 @@ std::string PanelHeading(const char* title)
+ constexpr float AppleGlyphWidth = 7.0f;
+ constexpr float AppleGlyphHeight = 16.0f;
+ 
+-float AppleTextWidth(const std::string& text)
++float AppleTextWidth(const std::string& source)
+ {
++    const std::string text = loc::Display(source);
++    if (loc::HasNonAscii(text)) return loc::TextWidth(text, 14.0f);
+     return static_cast<float>(text.size()) * AppleGlyphWidth;
+ }
+ 
+ void AddAppleText(ImDrawList* draw, const SpriteFont& font,
+                   const ImVec2& origin, float scale, float x, float y,
+-                  ImU32 color, const std::string& text)
++                  ImU32 color, const std::string& source)
+ {
+     const Texture& charset = font.Atlas();
+     if (!charset.IsValid()) return;
++    const std::string text = loc::Display(source);
++    if (loc::HasNonAscii(text))
++    {
++        loc::DrawJapanese(draw, Point(origin, scale, x, y + 1.0f),
++                          std::max(8.0f, std::round(16.0f * scale)),
++                      color, text);
++        return;
++    }
+     float penX = 0;
+     for (const unsigned char character : text)
+     {
+@@ -345,6 +372,44 @@ void AddAppleText(ImDrawList* draw, const SpriteFont& font,
+     }
+ }
+ 
++struct DisplayRow
++{
++    std::string text;
++    bool inverse = false;
++};
++
++// Rebuilds Deathlord's 18-column message lines (oldest first) into display
++// rows, replacing every recognised message with its wrapped translation.
++std::vector<DisplayRow> TranslateRows(const std::vector<DisplayRow>& lines,
++                                      float width, float logicalSize)
++{
++    std::vector<std::string> texts;
++    texts.reserve(lines.size());
++    for (const DisplayRow& line : lines) texts.push_back(line.text);
++    const std::vector<loc::SpanMatch> matches = loc::MatchLines(texts);
++    std::vector<DisplayRow> rows;
++    std::size_t next = 0;
++    for (int index = 0; index < static_cast<int>(lines.size());)
++    {
++        if (next < matches.size() && matches[next].first == index)
++        {
++            bool inverse = false;
++            for (int k = 0; k < matches[next].count; ++k) inverse |= lines[index + k].inverse;
++            for (std::string& wrapped : loc::Wrap(matches[next].text, logicalSize, width))
++                rows.push_back({std::move(wrapped), inverse});
++            index += matches[next].count;
++            ++next;
++        }
++        else
++        {
++            loc::NoteUnmatched(lines[index].text);
++            rows.push_back(lines[index]);
++            ++index;
++        }
++    }
++    return rows;
++}
++
+ } // namespace
+ 
+ bool ModernUI::Initialize(const std::filesystem::path& assetsDir,
+@@ -556,7 +621,7 @@ void ModernUI::RenderTeleportPreview(const std::array<std::uint8_t,4096>& tiles,
+         const auto mouse = ImGui::GetMousePos();
+         const int hoverX = std::clamp(static_cast<int>((mouse.x-origin.x)/cell),0,size-1);
+         const int hoverY = std::clamp(static_cast<int>((mouse.y-origin.y)/cell),0,size-1);
+-        ImGui::SetTooltip("X: %d   Y: %d\nClick to choose this tile",hoverX,hoverY);
++        ImGui::SetTooltip(loc::T("X: %d   Y: %d\nClick to choose this tile"),hoverX,hoverY);
+         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) { x=hoverX; y=hoverY; }
+     }
+     const ImVec2 center(origin.x+(x+0.5f)*cell,origin.y+(y+0.5f)*cell);
+@@ -708,11 +773,17 @@ void ModernUI::HandleEvent(const HookEvent& event)
+             longLog_.push_back(log_.front().text);
+             if (longLog_.size() > 2000) longLog_.pop_front();
+         }
++        static const bool dumpLog = std::getenv("DLRL_DUMP_LOG") != nullptr;
++        if (dumpLog && !log_.empty())
++            std::fprintf(stderr, "LOG|%s|%s\n", log_.front().text.c_str(),
++                         log_.front().inverse ? "inv" : "");
+         if (log_.size() >= 32) log_.pop_back();
+         log_.push_front({std::string(18, ' '), false});
+     };
+     auto scrollBillboard = [&]()
+     {
++        static const bool dumpBoard = std::getenv("DLRL_DUMP_LOG") != nullptr;
++        if (dumpBoard) std::fprintf(stderr, "BB|%s|\n", billboard_[0].text.c_str());
+         for (int index = 7; index > 0; --index) billboard_[index] = billboard_[index - 1];
+         billboard_[0] = {std::string(18, ' '), false};
+     };
+@@ -1392,24 +1463,40 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+     const bool keypressInverse = (static_cast<int>(ImGui::GetTime() * 2.0) & 1) == 0;
+     PanelCenteredText(1412, 815, inverseColor, keypress, keypressInverse);
+ 
+-    int lineIndex = 0;
+-    for (const TextLine& line : log_)
+     {
+-        if (lineIndex >= 32) break;
+-        const std::string value = trimmed(line.text);
+-        if (!value.empty())
+-            PanelText(1298, 764 - lineIndex * 18,
+-                      line.inverse ? inverseColor : textColor,
+-                      value, line.inverse);
+-        ++lineIndex;
++        std::vector<DisplayRow> history;
++        int taken = 0;
++        for (auto line = log_.begin(); line != log_.end() && taken < 48; ++line, ++taken)
++            history.push_back({line->text, line->inverse});
++        std::reverse(history.begin(), history.end());
++        const std::vector<DisplayRow> rows = TranslateRows(
++            history, 18 * DeathlordGlyphWidth * panelFontScale, 16.0f * panelFontScale);
++        int lineIndex = 0;
++        for (auto row = rows.rbegin(); row != rows.rend() && lineIndex < 32; ++row, ++lineIndex)
++        {
++            const std::string value = trimmed(row->text);
++            if (!value.empty())
++                PanelText(1298, 764 - lineIndex * 18,
++                          row->inverse ? inverseColor : textColor,
++                          value, row->inverse);
++        }
+     }
+-    for (int index = 0; index < static_cast<int>(billboard_.size()); ++index)
+     {
+-        const std::string value = trimmed(billboard_[index].text);
+-        if (!value.empty())
+-            PanelCenteredText(1412, 994 - index * 18,
+-                              billboard_[index].inverse ? inverseColor : textColor,
+-                              value, billboard_[index].inverse);
++        std::vector<DisplayRow> board;
++        for (int index = static_cast<int>(billboard_.size()) - 1; index >= 0; --index)
++            board.push_back({billboard_[index].text, billboard_[index].inverse});
++        const std::vector<DisplayRow> rows = TranslateRows(
++            board, 18 * DeathlordGlyphWidth * panelFontScale, 16.0f * panelFontScale);
++        const int count = static_cast<int>(rows.size());
++        const float top = 994 - 7 * 18 - std::max(0, count - 8) * 18.0f;
++        for (int index = 0; index < count; ++index)
++        {
++            const std::string value = trimmed(rows[index].text);
++            if (!value.empty())
++                PanelCenteredText(1412, top + index * 18,
++                                  rows[index].inverse ? inverseColor : textColor,
++                                  value, rows[index].inverse);
++        }
+     }
+     const int partyCount = std::clamp<int>(MemGetMainPtr(PartySizeAddress)[0], 0, PartySize);
+     const int current = MemGetMainPtr(PartyCurrentCharacter)[0];
+@@ -1516,13 +1603,17 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+         const int race = Party(PartyRace, member) & 0x07;
+         PartyCenteredText(x + 48, y + 129, normal, ClassNames[characterClass], 8);
+         PartyCenteredText(x + 48, y + 139, normal, RaceNames[race], 8);
+-        std::snprintf(buffer, sizeof(buffer), "STR:%02d  INT:%02d",
++        const bool japaneseStats = loc::Enabled();
++        std::snprintf(buffer, sizeof(buffer),
++                      japaneseStats ? "筋力%02d  知力%02d" : "STR:%02d  INT:%02d",
+                       Party(PartyStrength, member), Party(PartyIntelligence, member));
+         PartyText(x + 2, y + 151, dim, buffer, 8);
+-        std::snprintf(buffer, sizeof(buffer), "CON:%02d  DEX:%02d",
++        std::snprintf(buffer, sizeof(buffer),
++                      japaneseStats ? "体力%02d  敏捷%02d" : "CON:%02d  DEX:%02d",
+                       Party(PartyConstitution, member), Party(PartyDexterity, member));
+         PartyText(x + 2, y + 167, dim, buffer, 8);
+-        std::snprintf(buffer, sizeof(buffer), "SIZ:%02d  CHA:%02d",
++        std::snprintf(buffer, sizeof(buffer),
++                      japaneseStats ? "体格%02d  魅力%02d" : "SIZ:%02d  CHA:%02d",
+                       Party(PartySizeAttribute, member), Party(PartyCharisma, member));
+         PartyText(x + 2, y + 183, dim, buffer, 8);
+ 
+@@ -1545,8 +1636,14 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+                                  : inventoryRules_
+                                      ? inventoryRules_->Name(item, englishNames)
+                                      : "Unknown";
+-            if (itemName.size() > 13) itemName.resize(13);
+-            itemName.resize(13, '.');
++            if (const std::string japanese = loc::Display(itemName);
++                item != 0xFF && loc::HasNonAscii(japanese))
++                itemName = japanese;
++            else
++            {
++                if (itemName.size() > 13) itemName.resize(13);
++                itemName.resize(13, '.');
++            }
+             const float itemY = y + 120 + slot * 9;
+             PartyText(x + 138, itemY, normal, count + " " + itemName, 8);
+             std::string equipment;
+@@ -1797,8 +1894,24 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+         const char* headers = inventorySlot_ < 2
+             ? "Name                  TH0    Damage    AC   Special"
+             : "Name                   TH0   AC   Special";
+-        AddAppleText(draw, appleFont_, origin, scale,
+-                     innerLeft, tabsY + 40, white, headers);
++        if (loc::Enabled())
++        {
++            // Translate each column heading in place, keeping its column.
++            const std::string row = headers;
++            for (std::size_t start = 0; start < row.size();)
++            {
++                if (row[start] == ' ') { ++start; continue; }
++                std::size_t end = row.find(' ', start);
++                if (end == std::string::npos) end = row.size();
++                AddAppleText(draw, appleFont_, origin, scale,
++                             innerLeft + start * AppleGlyphWidth, tabsY + 40, white,
++                             loc::T(row.substr(start, end - start)));
++                start = end;
++            }
++        }
++        else
++            AddAppleText(draw, appleFont_, origin, scale,
++                         innerLeft, tabsY + 40, white, headers);
+ 
+         for (int member = 0; member < partyCount; ++member)
+         {
+@@ -1943,7 +2056,13 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+             char itemText[256];
+             const int thaco = inventoryRules_ ? inventoryRules_->Thaco(row.item) : 0;
+             const int ac = inventoryRules_ ? -inventoryRules_->ArmorClass(row.item) : 0;
+-            const std::string special = inventoryRules_ ? inventoryRules_->Special(row.item) : "";
++            std::string special = inventoryRules_ ? inventoryRules_->Special(row.item) : "";
++            // Japanese names and notes are proportional: draw them on their
++            // own and keep the fixed-width columns for the numbers.
++            const std::string japaneseName = loc::Display(name);
++            const std::string japaneseSpecial = loc::Display(special);
++            if (loc::HasNonAscii(japaneseName)) name.clear();
++            if (loc::HasNonAscii(japaneseSpecial)) special.clear();
+             if (inventorySlot_ < 2)
+             {
+                 const int attacks = inventoryRules_ ? inventoryRules_->Attacks(row.item) : 0;
+@@ -1970,6 +2089,16 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+                               name.c_str(), thaco, ac, special.c_str());
+             AddAppleText(draw, appleFont_, origin, scale,
+                          innerLeft, y, white, itemText);
++            if (name.empty() && loc::HasNonAscii(japaneseName))
++                AddAppleText(draw, appleFont_, origin, scale, innerLeft, y, white, japaneseName);
++            if (special.empty() && loc::HasNonAscii(japaneseSpecial))
++            {
++                std::string columns = itemText;
++                while (!columns.empty() && columns.back() == ' ') columns.pop_back();
++                AddAppleText(draw, appleFont_, origin, scale,
++                             innerLeft + (columns.size() + 3) * AppleGlyphWidth, y, white,
++                             japaneseSpecial);
++            }
+ 
+             for (int member = 0; member < partyCount; ++member)
+             {
+@@ -2083,6 +2212,10 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+                        Point(origin, scale, appleX + appleWidth, appleY + appleHeight),
+                        ImVec2(20.0f / 600.0f, 1.0f - 18.0f / 420.0f),
+                        ImVec2(1.0f - 20.0f / 600.0f, 18.0f / 420.0f));
++        const ImVec2 appleMin = Point(origin, scale, appleX, appleY);
++        const ImVec2 appleMax = Point(origin, scale, appleX + appleWidth, appleY + appleHeight);
++        loc::DrawAppleOverlay(draw, appleMin,
++                              ImVec2(appleMax.x - appleMin.x, appleMax.y - appleMin.y));
+     }
+ 
+     // Transition and death presentation deliberately live in the same canvas
+@@ -2222,7 +2355,7 @@ void ModernUI::RenderLogWindow(bool* open)
+         return mouse.x >= a.x && mouse.x < b.x && mouse.y >= a.y && mouse.y < b.y;
+     };
+ 
+-    const std::string clearLabel = "\x7e" "CLEAR\x7f";
++    const std::string clearLabel = loc::Enabled() ? "［消去］" : "\x7e" "CLEAR\x7f";
+     const float clearWidth = DeathlordTextWidth(clearLabel, 16.0f);
+     const bool clearHovered = hit(panelX + 26.0f, panelY + 16.0f,
+                                   clearWidth + 4.0f, 20.0f);
+@@ -2254,7 +2387,25 @@ void ModernUI::RenderLogWindow(bool* open)
+     const float contentBottom = panelY + panelHeight - 26.0f;
+     const int visibleRows = std::max(
+         1, static_cast<int>((contentBottom - contentTop) / lineHeight));
+-    const int total = static_cast<int>(longLog_.size());
++    // Translated history is rebuilt only when the underlying log changes.
++    static std::vector<DisplayRow> longRows;
++    static std::size_t longRowsSize = static_cast<std::size_t>(-1);
++    static std::string longRowsLast;
++    static bool longRowsJapanese = false;
++    static float longRowsScale = 0.0f;
++    if (longRowsSize != longLog_.size()
++        || (!longLog_.empty() && longRowsLast != longLog_.back())
++        || longRowsJapanese != loc::Enabled() || longRowsScale != scale)
++    {
++        std::vector<DisplayRow> lines;
++        for (const std::string& line : longLog_) lines.push_back({line, false});
++        longRows = TranslateRows(lines, (panelWidth - 60.0f) * scale, 18.0f * scale);
++        longRowsScale = scale;
++        longRowsSize = longLog_.size();
++        longRowsLast = longLog_.empty() ? std::string() : longLog_.back();
++        longRowsJapanese = loc::Enabled();
++    }
++    const int total = static_cast<int>(longRows.size());
+     const float maxScroll = static_cast<float>(std::max(0, total - visibleRows));
+     if (hit(panelX, panelY, panelWidth, panelHeight))
+         logScrollFromBottom_ += ImGui::GetIO().MouseWheel * 3.0f;
+@@ -2273,7 +2424,7 @@ void ModernUI::RenderLogWindow(bool* open)
+     const int last = std::min(total, first + visibleRows);
+     float y = contentTop;
+     for (int index = first; index < last; ++index, y += lineHeight)
+-        text(panelX + 30.0f, y, PanelChalk32, longLog_[index], 18.0f);
++        text(panelX + 30.0f, y, PanelChalk32, longRows[index].text, 18.0f);
+ 
+     if (total > visibleRows)
+     {
+diff --git a/src/main.cpp b/src/main.cpp
+index 30d287f..31e3cfe 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -17,6 +17,7 @@
+ #include "HostTiming.h"
+ #include "FileUtil.h"
+ #include "ModernUI.h"
++#include "Localization.h"
+ #include "PartyTransfer.h"
+ #include "Renderer.h"
+ 
+@@ -145,6 +146,7 @@ struct AppState
+     bool fixtureImportConfirmation = false;
+     bool testCleanReset = false;
+     bool englishNames = false;
++    bool japanese = true;
+     bool autoHideMenuBar = false;
+     bool mapFogEnabled = true;
+     bool teleportRequested = false;
+@@ -214,6 +216,7 @@ void LoadHostSettings(AppState& state)
+             "show_apple_video_in_game", state.showAppleVideoInGame);
+         state.showSpells = json.value("show_spells", state.showSpells);
+         state.englishNames = json.value("english_names", state.englishNames);
++        state.japanese = json.value("japanese", state.japanese);
+         state.autoHideMenuBar = json.value("menu_auto_hide", state.autoHideMenuBar);
+         state.mapFogEnabled = json.value("map_fog_enabled", state.mapFogEnabled);
+         if (json.contains("hacking"))
+@@ -278,6 +281,7 @@ void SaveSettings(const AppState& state)
+         { "show_apple_video_in_game", state.showAppleVideoInGame },
+         { "show_spells", state.showSpells },
+         { "english_names", state.englishNames },
++        { "japanese", state.japanese },
+         { "menu_auto_hide", state.autoHideMenuBar },
+         { "map_fog_enabled", state.mapFogEnabled },
+         { "map_view_mode", static_cast<int>(state.mapViewMode) },
+@@ -930,7 +934,7 @@ void RenderTeleportDialog(AppState& state)
+         state.teleportTarget = {maps[state.teleportSelection],1,0,0};
+         RefreshTeleportPreview(state,true);
+         state.teleportOpen = true;
+-        ImGui::OpenPopup("Teleport to a map");
++        ImGui::OpenPopup(loc::T("Teleport to a map"));
+     }
+     if (!state.teleportOpen) return;
+     const auto available = ImGui::GetMainViewport()->WorkSize;
+@@ -939,7 +943,7 @@ void RenderTeleportDialog(AppState& state)
+     const float positionWidth = std::max(previewWidth,220.0f);
+     const float bodyHeight = std::min(previewWidth+150.0f,available.y-220.0f);
+     ImGui::SetNextWindowSizeConstraints(ImVec2(width,0),ImVec2(width,available.y-20));
+-    if (!state.modernUi.BeginPanelPopup("Teleport to a map")) return;
++    if (!state.modernUi.BeginPanelPopup(loc::T("Teleport to a map"))) return;
+     // Keep editable fields distinguishable from the dark map/list background.
+     ImGui::PushStyleColor(ImGuiCol_FrameBg,ImVec4(0.12f,0.14f,0.16f,1.0f));
+     auto& target = state.teleportTarget;
+@@ -956,7 +960,9 @@ void RenderTeleportDialog(AppState& state)
+                                     IM_ARRAYSIZE(state.teleportFilter.InputBuf)))
+             state.teleportFilter.Build();
+         ImGui::SetNextItemWidth(-1);
+-        ImGui::Combo("##map-kind",&state.teleportKind,"All maps\0Towns and interiors\0Dungeons\0Overworld\0");
++        ImGui::Combo("##map-kind",&state.teleportKind,
++                     loc::Enabled() ? "すべてのマップ\0町と建物\0ダンジョン\0地上\0"
++                                    : "All maps\0Towns and interiors\0Dungeons\0Overworld\0");
+         ImGui::BeginChild("##destinations",ImVec2(0,bodyHeight-64),ImGuiChildFlags_Borders);
+         int matches = 0;
+         for (int i=0;i<static_cast<int>(maps.size());++i)
+@@ -976,7 +982,7 @@ void RenderTeleportDialog(AppState& state)
+             if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s\n%s",map.name.c_str(),map.region.c_str());
+             ImGui::PopID();
+         }
+-        if (!matches) ImGui::TextDisabled("No matching maps");
++        if (!matches) ImGui::TextDisabled(loc::T("No matching maps"));
+         ImGui::EndChild();
+         ImGui::TableNextColumn();
+         ImGui::PushTextWrapPos(ImGui::GetCursorPosX()+positionWidth);
+@@ -986,7 +992,7 @@ void RenderTeleportDialog(AppState& state)
+         if (target.destination.type == 2)
+         {
+             ImGui::SetNextItemWidth(-60);
+-            if (ImGui::SliderInt("Floor",&target.floor,1,target.destination.floors))
++            if (ImGui::SliderInt(loc::T("Floor"),&target.floor,1,target.destination.floors))
+                 RefreshTeleportPreview(state,true);
+         }
+         else if (target.destination.name == "World - any sector")
+@@ -1000,7 +1006,7 @@ void RenderTeleportDialog(AppState& state)
+                 RefreshTeleportPreview(state,true);
+             }
+         }
+-        else ImGui::TextDisabled("Click to choose a tile");
++        else ImGui::TextDisabled(loc::T("Click to choose a tile"));
+         const int size = dlrl::MapTravel::Size(target.destination);
+         state.modernUi.RenderTeleportPreview(state.teleportTiles,target.destination.type==1,
+                                              size,previewWidth,target.x,target.y);
+@@ -1009,7 +1015,7 @@ void RenderTeleportDialog(AppState& state)
+         ImGui::SameLine();
+         ImGui::SetNextItemWidth((previewWidth-52)*0.5f);
+         ImGui::InputInt("Y",&target.y,0);
+-        ImGui::TextDisabled("0-%d, from top left",size-1);
++        ImGui::TextDisabled(loc::T("0-%d, from top left"),size-1);
+         ImGui::EndTable();
+     }
+     if (!state.teleportError.empty()) ImGui::TextWrapped("%s",state.teleportError.c_str());
+@@ -1018,12 +1024,12 @@ void RenderTeleportDialog(AppState& state)
+     if (!validation.empty()) ImGui::TextWrapped("%s",validation.c_str());
+     ImGui::EndChild();
+     ImGui::Separator();
+-    ImGui::TextWrapped("Game paused. Pick a clear tile; hazards still apply.");
++    ImGui::TextWrapped(loc::T("Game paused. Pick a clear tile; hazards still apply."));
+     ImGui::BeginDisabled(!valid || (!state.hooks.CanTeleport() && !state.uiFixture));
+-    const bool teleport = state.modernUi.PanelButton("TELEPORT");
++    const bool teleport = state.modernUi.PanelButton(loc::T("TELEPORT"));
+     ImGui::EndDisabled();
+     ImGui::SameLine();
+-    const bool cancel = state.modernUi.PanelButton("CANCEL") || ImGui::IsKeyPressed(ImGuiKey_Escape);
++    const bool cancel = state.modernUi.PanelButton(loc::T("CANCEL")) || ImGui::IsKeyPressed(ImGuiKey_Escape);
+     if (cancel || (teleport && state.hooks.QueueTeleport(target,state.teleportError)))
+     {
+         state.teleportOpen = false;
+@@ -1163,7 +1169,7 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+ 
+     // The ### id suffix retires stale imgui.ini geometry from builds whose
+     // default size still needed a scrollbar.
+-    if (!state.modernUi.BeginPanel("Party Editor###PartyEditorTall",
++    if (!state.modernUi.BeginPanel(loc::T("Party Editor###PartyEditorTall"),
+                                    &state.showPartyEditor, 900, 960,
+                                    ImGuiWindowFlags_NoDocking))
+     {
+@@ -1176,7 +1182,7 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+         PartyPartyName, dlrl::PartySnapshot::PartyNameLength);
+     std::copy_n(currentPartyName.c_str(),
+                 std::min(currentPartyName.size(), partyName.size() - 1), partyName.data());
+-    if (ImGui::InputText("Party name", partyName.data(), partyName.size()))
++    if (ImGui::InputText(loc::T("Party name"), partyName.data(), partyName.size()))
+         dlrl::PartyTransfer::EncodeString(PartyPartyName, partyName.size() - 1,
+                                           partyName.data(), true);
+ 
+@@ -1252,14 +1258,14 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+         return changed;
+     };
+ 
+-    if (ImGui::CollapsingHeader("Identity", ImGuiTreeNodeFlags_DefaultOpen))
++    if (ImGui::CollapsingHeader(loc::T("Identity"), ImGuiTreeNodeFlags_DefaultOpen))
+     {
+         std::array<char, 10> name{};
+         const std::string currentName = dlrl::PartyTransfer::DecodeString(
+             static_cast<std::uint16_t>(PartyName + member * 9), 9);
+         std::copy_n(currentName.c_str(), std::min(currentName.size(), name.size() - 1),
+                     name.data());
+-        if (ImGui::InputText("Name", name.data(), name.size()))
++        if (ImGui::InputText(loc::T("Name"), name.data(), name.size()))
+             dlrl::PartyTransfer::EncodeString(
+                 static_cast<std::uint16_t>(PartyName + member * 9), 9, name.data(), false);
+         const bool classChanged = editCombo("Class", PartyClass, classNames);
+@@ -1289,17 +1295,17 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+             }
+             ImGui::EndCombo();
+         }
+-        if (ImGui::Button("Make party leader"))
++        if (ImGui::Button(loc::T("Make party leader")))
+         {
+             MemGetMainPtr(PartyLeader)[0] = static_cast<BYTE>(member);
+             MemGetMainPtr(PartyCurrentCharacter)[0] = static_cast<BYTE>(member);
+             MemGetMainPtr(PartyCurrentClass)[0] = MemGetMainPtr(PartyClass)[member];
+         }
+         ImGui::SameLine();
+-        if (MemGetMainPtr(PartyLeader)[0] == member) ImGui::TextDisabled("Current leader");
++        if (MemGetMainPtr(PartyLeader)[0] == member) ImGui::TextDisabled(loc::T("Current leader"));
+     }
+ 
+-    if (ImGui::CollapsingHeader("Progress and resources", ImGuiTreeNodeFlags_DefaultOpen))
++    if (ImGui::CollapsingHeader(loc::T("Progress and resources"), ImGuiTreeNodeFlags_DefaultOpen))
+     {
+         if (ImGui::BeginTable("Progress", 3, ImGuiTableFlags_SizingStretchSame))
+         {
+@@ -1317,14 +1323,14 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+             int armorClass = 10 - MemGetMainPtr(PartyArmorClass)[member];
+             ImGui::TableNextColumn();
+             ImGui::SetNextItemWidth(numberFieldWidth);
+-            if (ImGui::InputInt("Armor class", &armorClass))
++            if (ImGui::InputInt(loc::T("Armor class"), &armorClass))
+                 MemGetMainPtr(PartyArmorClass)[member] = static_cast<BYTE>(
+                     std::clamp(10 - armorClass, 0, 255));
+             ImGui::EndTable();
+         }
+     }
+ 
+-    if (ImGui::CollapsingHeader("Attributes", ImGuiTreeNodeFlags_DefaultOpen))
++    if (ImGui::CollapsingHeader(loc::T("Attributes"), ImGuiTreeNodeFlags_DefaultOpen))
+     {
+         if (ImGui::BeginTable("Attributes", 3, ImGuiTableFlags_SizingStretchSame))
+         {
+@@ -1338,7 +1344,7 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+         }
+     }
+ 
+-    if (ImGui::CollapsingHeader("Status", ImGuiTreeNodeFlags_DefaultOpen))
++    if (ImGui::CollapsingHeader(loc::T("Status"), ImGuiTreeNodeFlags_DefaultOpen))
+     {
+         constexpr std::array<std::pair<BYTE, const char*>, 7> statuses = {{
+             {0x02, "Starving"}, {0x04, "Toxified"}, {0x08, "Ill"},
+@@ -1359,7 +1365,7 @@ void RenderPartyEditor(AppState& state, bool activeParty)
+         ImGui::NewLine();
+     }
+ 
+-    if (ImGui::CollapsingHeader("Inventory", ImGuiTreeNodeFlags_DefaultOpen))
++    if (ImGui::CollapsingHeader(loc::T("Inventory"), ImGuiTreeNodeFlags_DefaultOpen))
+     {
+         BYTE* inventory = MemGetMainPtr(
+             static_cast<std::uint16_t>(PartyInventory + member * 0x20));
+@@ -1461,17 +1467,17 @@ void RenderAppleWindow(AppState& state)
+     }
+     if (showMenuBar && ImGui::BeginMainMenuBar())
+     {
+-        if (ImGui::BeginMenu("File"))
++        if (ImGui::BeginMenu(loc::T("File")))
+         {
+-            if (ImGui::MenuItem("Open DLRL HDV...")) OpenHdvDialog(state);
++            if (ImGui::MenuItem(loc::T("Open DLRL HDV..."))) OpenHdvDialog(state);
+             ImGui::Separator();
+-            if (ImGui::MenuItem("Start a clean new game")) state.newGameRequested = true;
+-            if (ImGui::MenuItem("Export active party...", nullptr, false, activeParty))
++            if (ImGui::MenuItem(loc::T("Start a clean new game"))) state.newGameRequested = true;
++            if (ImGui::MenuItem(loc::T("Export active party..."), nullptr, false, activeParty))
+                 OpenPartyExportDialog(state);
+-            if (ImGui::MenuItem("Import party...", nullptr, false, activeParty))
++            if (ImGui::MenuItem(loc::T("Import party..."), nullptr, false, activeParty))
+                 OpenPartyImportDialog(state);
+             ImGui::Separator();
+-            if (ImGui::MenuItem("Quit", "Cmd/Ctrl-Q"))
++            if (ImGui::MenuItem(loc::T("Quit"), "Cmd/Ctrl-Q"))
+             {
+                 SDL_Event quit{};
+                 quit.type = SDL_EVENT_QUIT;
+@@ -1479,9 +1485,9 @@ void RenderAppleWindow(AppState& state)
+             }
+             ImGui::EndMenu();
+         }
+-        if (ImGui::BeginMenu("Emulator"))
++        if (ImGui::BeginMenu(loc::T("Emulator")))
+         {
+-            if (ImGui::BeginMenu("Video"))
++            if (ImGui::BeginMenu(loc::T("Video")))
+             {
+                 for (int i = 0; i < static_cast<int>(std::size(kVideoPresets)); ++i)
+                 {
+@@ -1493,17 +1499,17 @@ void RenderAppleWindow(AppState& state)
+                     }
+                 }
+                 ImGui::Separator();
+-                if (ImGui::MenuItem("CRT post-processing", nullptr,
++                if (ImGui::MenuItem(loc::T("CRT post-processing"), nullptr,
+                                     state.postprocessorEnabled))
+                 {
+                     state.postprocessorEnabled = !state.postprocessorEnabled;
+                     sa2::PostProcessor::GetInstance()->SetActive(state.postprocessorEnabled);
+                 }
+-                if (ImGui::MenuItem("Post-processor settings"))
++                if (ImGui::MenuItem(loc::T("Post-processor settings")))
+                     sa2::PostProcessor::GetInstance()->bImguiWindowIsOpen = true;
+                 ImGui::EndMenu();
+             }
+-            if (ImGui::BeginMenu("Volume"))
++            if (ImGui::BeginMenu(loc::T("Volume")))
+             {
+                 // Deathlord has no Mockingboard audio; the speaker levels are
+                 // the whole volume story.
+@@ -1521,38 +1527,41 @@ void RenderAppleWindow(AppState& state)
+             ImGui::Separator();
+             if (ImGui::MenuItem(state.paused ? "Resume" : "Pause", "Alt+P"))
+                 SetPaused(state, !state.paused);
+-            if (ImGui::MenuItem("Reboot", "Cmd/Alt+R")) state.rebootRequested = true;
+-            if (ImGui::MenuItem("Fullscreen", "Alt+Enter", state.fullscreen))
++            if (ImGui::MenuItem(loc::T("Reboot"), "Cmd/Alt+R")) state.rebootRequested = true;
++            if (ImGui::MenuItem(loc::T("Fullscreen"), "Alt+Enter", state.fullscreen))
+                 SetFullscreen(state, !state.fullscreen);
+             ImGui::EndMenu();
+         }
+-        if (ImGui::BeginMenu("Relorded"))
++        if (ImGui::BeginMenu(loc::T("Relorded")))
+         {
+-            ImGui::MenuItem("Inventory", "Insert", &state.showInventory,
++            ImGui::MenuItem(loc::T("Inventory"), "Insert", &state.showInventory,
+                             state.hooks.State().inGameMap || state.uiFixture);
+-            ImGui::MenuItem("Original Interface", "F11", &state.showAppleVideoInGame);
+-            if (ImGui::BeginMenu("Original Interface Darkness"))
++            ImGui::MenuItem(loc::T("Original Interface"), "F11", &state.showAppleVideoInGame);
++            if (ImGui::BeginMenu(loc::T("Original Interface Darkness")))
+             {
+                 ImGui::SetNextItemWidth(180.0f);
+                 ImGui::SliderInt("##OriginalInterfaceDarkness",
+                                  &state.originalInterfaceOpacity, 0, 100, "%d%%");
+                 ImGui::EndMenu();
+             }
+-            ImGui::MenuItem("English Translation", "F10", &state.englishNames);
+-            ImGui::MenuItem("Auto-Hide Menu Bar", nullptr, &state.autoHideMenuBar);
++            ImGui::MenuItem(loc::T("English Translation"), "F10", &state.englishNames);
++            if (loc::Loaded()
++                && ImGui::MenuItem(loc::T("Japanese (日本語)"), "F9", &state.japanese))
++                loc::SetEnabled(state.japanese);
++            ImGui::MenuItem(loc::T("Auto-Hide Menu Bar"), nullptr, &state.autoHideMenuBar);
+             ImGui::Separator();
+-            if (ImGui::BeginMenu("Map"))
++            if (ImGui::BeginMenu(loc::T("Map")))
+             {
+-                if (ImGui::MenuItem("Fog of War", nullptr, &state.mapFogEnabled))
++                if (ImGui::MenuItem(loc::T("Fog of War"), nullptr, &state.mapFogEnabled))
+                     state.modernUi.SetFogOfWarEnabled(state.mapFogEnabled);
+-                if (ImGui::MenuItem("Teleport to Map...",nullptr,false,
++                if (ImGui::MenuItem(loc::T("Teleport to Map..."),nullptr,false,
+                                     state.hooks.CanTeleport() || state.uiFixture))
+                     state.teleportRequested = true;
+                 if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)
+                     && !state.hooks.CanTeleport())
+-                    ImGui::SetTooltip("Available at the map movement prompt, outside combat.");
++                    ImGui::SetTooltip(loc::T("Available at the map movement prompt, outside combat."));
+                 ImGui::Separator();
+-                if (ImGui::MenuItem("Display Centered / Full", "F1",
++                if (ImGui::MenuItem(loc::T("Display Centered / Full"), "F1",
+                                     state.mapViewMode == dlrl::MapViewMode::FollowPlayer
+                                     || state.mapViewMode == dlrl::MapViewMode::Full))
+                 {
+@@ -1560,77 +1569,77 @@ void RenderAppleWindow(AppState& state)
+                                       ? dlrl::MapViewMode::Full
+                                       : dlrl::MapViewMode::FollowPlayer;
+                 }
+-                if (ImGui::MenuItem("Display Top Left Quadrant", "F2",
++                if (ImGui::MenuItem(loc::T("Display Top Left Quadrant"), "F2",
+                                     state.mapViewMode == dlrl::MapViewMode::TopLeft))
+                     state.mapViewMode = dlrl::MapViewMode::TopLeft;
+-                if (ImGui::MenuItem("Display Top Right Quadrant", "F3",
++                if (ImGui::MenuItem(loc::T("Display Top Right Quadrant"), "F3",
+                                     state.mapViewMode == dlrl::MapViewMode::TopRight))
+                     state.mapViewMode = dlrl::MapViewMode::TopRight;
+-                if (ImGui::MenuItem("Display Bottom Left Quadrant", "F4",
++                if (ImGui::MenuItem(loc::T("Display Bottom Left Quadrant"), "F4",
+                                     state.mapViewMode == dlrl::MapViewMode::BottomLeft))
+                     state.mapViewMode = dlrl::MapViewMode::BottomLeft;
+-                if (ImGui::MenuItem("Display Bottom Right Quadrant", "F5",
++                if (ImGui::MenuItem(loc::T("Display Bottom Right Quadrant"), "F5",
+                                     state.mapViewMode == dlrl::MapViewMode::BottomRight))
+                     state.mapViewMode = dlrl::MapViewMode::BottomRight;
+                 ImGui::EndMenu();
+             }
+-            ImGui::MenuItem("Spell Window", "Alt-S", &state.showSpells);
+-            ImGui::MenuItem("Log Window", "Alt-L", &state.showLog);
++            ImGui::MenuItem(loc::T("Spell Window"), "Alt-S", &state.showSpells);
++            ImGui::MenuItem(loc::T("Log Window"), "Alt-L", &state.showLog);
+             ImGui::Separator();
+-            if (ImGui::BeginMenu("Relorded Changes"))
++            if (ImGui::BeginMenu(loc::T("Relorded Changes")))
+             {
+                 auto& changes = state.hooks.Changes();
+-                ImGui::MenuItem("Fair combat XP allocation", nullptr, &changes.xpReallocation);
+-                ImGui::MenuItem("Exit pits with movement keys", nullptr, &changes.exitPitByMoving);
+-                ImGui::MenuItem("Freeze time while idle", nullptr, &changes.freezeTimeWhenIdle);
+-                ImGui::MenuItem("Rear rank ranged attacks", nullptr, &changes.rangedAttackForRearLine);
+-                ImGui::MenuItem("Search always succeeds", nullptr, &changes.searchAlwaysSucceeds);
+-                ImGui::MenuItem("Prevent level drain", nullptr, &changes.noLevelDrain);
+-                ImGui::MenuItem("Magic water raises stats", nullptr, &changes.magicWaterIncreasesStats);
+-                ImGui::MenuItem("Remove stat ceiling", nullptr, &changes.noStatsLimit);
+-                ImGui::MenuItem("No starvation HP loss", nullptr, &changes.noHpLossFromStarvation);
+-                ImGui::MenuItem("Extra race/class bonuses", nullptr, &changes.extraRaceAndClassBonuses);
+-                ImGui::MenuItem("No autosave after death", nullptr, &changes.noAutosaveAfterDeath);
+-                ImGui::MenuItem("Expanded weapon use", nullptr, &changes.expandedWeaponUse);
+-                ImGui::MenuItem("Keep surplus XP on level-up", nullptr, &changes.keepExtraXpOnLevel);
+-                ImGui::MenuItem("Distribute purchased food", nullptr, &changes.distributeFood);
+-                ImGui::MenuItem("Fix gold pooling", nullptr, &changes.fixGoldPooling);
+-                ImGui::MenuItem("Distribute battle gold", nullptr, &changes.distributeGold);
++                ImGui::MenuItem(loc::T("Fair combat XP allocation"), nullptr, &changes.xpReallocation);
++                ImGui::MenuItem(loc::T("Exit pits with movement keys"), nullptr, &changes.exitPitByMoving);
++                ImGui::MenuItem(loc::T("Freeze time while idle"), nullptr, &changes.freezeTimeWhenIdle);
++                ImGui::MenuItem(loc::T("Rear rank ranged attacks"), nullptr, &changes.rangedAttackForRearLine);
++                ImGui::MenuItem(loc::T("Search always succeeds"), nullptr, &changes.searchAlwaysSucceeds);
++                ImGui::MenuItem(loc::T("Prevent level drain"), nullptr, &changes.noLevelDrain);
++                ImGui::MenuItem(loc::T("Magic water raises stats"), nullptr, &changes.magicWaterIncreasesStats);
++                ImGui::MenuItem(loc::T("Remove stat ceiling"), nullptr, &changes.noStatsLimit);
++                ImGui::MenuItem(loc::T("No starvation HP loss"), nullptr, &changes.noHpLossFromStarvation);
++                ImGui::MenuItem(loc::T("Extra race/class bonuses"), nullptr, &changes.extraRaceAndClassBonuses);
++                ImGui::MenuItem(loc::T("No autosave after death"), nullptr, &changes.noAutosaveAfterDeath);
++                ImGui::MenuItem(loc::T("Expanded weapon use"), nullptr, &changes.expandedWeaponUse);
++                ImGui::MenuItem(loc::T("Keep surplus XP on level-up"), nullptr, &changes.keepExtraXpOnLevel);
++                ImGui::MenuItem(loc::T("Distribute purchased food"), nullptr, &changes.distributeFood);
++                ImGui::MenuItem(loc::T("Fix gold pooling"), nullptr, &changes.fixGoldPooling);
++                ImGui::MenuItem(loc::T("Distribute battle gold"), nullptr, &changes.distributeGold);
+                 ImGui::Separator();
+-                if (ImGui::MenuItem("Enable all fixes")) changes = {};
++                if (ImGui::MenuItem(loc::T("Enable all fixes"))) changes = {};
+                 ImGui::EndMenu();
+             }
+             ImGui::EndMenu();
+         }
+         if (state.showHackingMenuFixture)
+-            ImGui::OpenPopup("Hacking");
+-        if (ImGui::BeginMenu("Hacking"))
++            ImGui::OpenPopup(loc::T("Hacking"));
++        if (ImGui::BeginMenu(loc::T("Hacking")))
+         {
+             if (state.showHackingMenuFixture && state.presentedFrames == state.smokeFrames - 1)
+                 std::puts("DLRL hacking menu: visible");
+-            if (ImGui::MenuItem("Party Editor...", nullptr,
++            if (ImGui::MenuItem(loc::T("Party Editor..."), nullptr,
+                                 state.showPartyEditor, activeParty))
+                 state.showPartyEditor = !state.showPartyEditor;
+             ImGui::Separator();
+             auto& hacking = state.hooks.Hacking();
+-            ImGui::MenuItem("Invincible", nullptr, &hacking.invincible);
++            ImGui::MenuItem(loc::T("Invincible"), nullptr, &hacking.invincible);
+             if (ImGui::IsItemHovered())
+-                ImGui::SetTooltip("Prevent HP loss from combat, spells, traps, and other damage.");
+-            ImGui::MenuItem("Automatic Battle Success", nullptr, &hacking.automaticBattleSuccess);
++                ImGui::SetTooltip(loc::T("Prevent HP loss from combat, spells, traps, and other damage."));
++            ImGui::MenuItem(loc::T("Automatic Battle Success"), nullptr, &hacking.automaticBattleSuccess);
+             if (ImGui::IsItemHovered())
+-                ImGui::SetTooltip("Win battles automatically, keeping normal victory rewards.");
++                ImGui::SetTooltip(loc::T("Win battles automatically, keeping normal victory rewards."));
+             ImGui::EndMenu();
+         }
+-        if (ImGui::BeginMenu("Help"))
++        if (ImGui::BeginMenu(loc::T("Help")))
+         {
+-            if (ImGui::MenuItem("About Deathlord Relorded 3.0", "Alt-?"))
++            if (ImGui::MenuItem(loc::T("About Deathlord Relorded 3.0"), "Alt-?"))
+                 state.showAbout = true;
+             ImGui::EndMenu();
+         }
+         const std::string hdvLabel = state.temporaryHdv.empty()
+             ? state.hdvPath.filename().string()
+             : std::string("Deathlord PRODOS.hdv (test copy)");
+-        ImGui::TextDisabled("HDV: %s", hdvLabel.c_str());
++        ImGui::TextDisabled(loc::T("HDV: %s"), hdvLabel.c_str());
+         ImGui::EndMainMenuBar();
+     }
+     // Evaluated after the menus were submitted so a menu opened this frame
+@@ -1709,6 +1718,8 @@ void RenderAppleWindow(AppState& state)
+             texture, topLeft,
+             ImVec2(topLeft.x + kAppleDisplayWidth, topLeft.y + kAppleDisplayHeight),
+             ImVec2(borderX, 1.0f - borderY), ImVec2(1.0f - borderX, borderY));
++        loc::DrawAppleOverlay(ImGui::GetBackgroundDrawList(), topLeft,
++                              ImVec2(kAppleDisplayWidth, kAppleDisplayHeight));
+         const std::string hint = StartMenuHint(state);
+         if (!hint.empty())
+             state.modernUi.RenderHostHint(
+@@ -1724,54 +1735,54 @@ void RenderAppleWindow(AppState& state)
+ 
+     if (state.showAbout)
+     {
+-        ImGui::OpenPopup("About Deathlord Relorded 3.0");
++        ImGui::OpenPopup(loc::T("About Deathlord Relorded 3.0"));
+         state.showAbout = false;
+     }
+-    if (state.modernUi.BeginPanelPopup("About Deathlord Relorded 3.0"))
++    if (state.modernUi.BeginPanelPopup(loc::T("About Deathlord Relorded 3.0")))
+     {
+-        ImGui::TextUnformatted("Deathlord Relorded 3.0");
+-        ImGui::TextUnformatted("Portable AppleWin core, SDL3, OpenGL, and Dear ImGui.");
++        ImGui::TextUnformatted(loc::T("Deathlord Relorded 3.0"));
++        ImGui::TextUnformatted(loc::T("Portable AppleWin core, SDL3, OpenGL, and Dear ImGui."));
+         ImGui::Separator();
+-        ImGui::TextUnformatted("Deathlord (c) 1987 Al Escudero and David Wong.");
+-        ImGui::TextUnformatted("Relorded by Rikkles, with qkumba and BillG.");
+-        if (state.modernUi.PanelButton("OK")) ImGui::CloseCurrentPopup();
++        ImGui::TextUnformatted(loc::T("Deathlord (c) 1987 Al Escudero and David Wong."));
++        ImGui::TextUnformatted(loc::T("Relorded by Rikkles, with qkumba and BillG."));
++        if (state.modernUi.PanelButton(loc::T("OK"))) ImGui::CloseCurrentPopup();
+         state.modernUi.EndPanelPopup();
+     }
+ 
+     if (state.rebootRequested)
+     {
+-        ImGui::OpenPopup("Reboot Deathlord?");
++        ImGui::OpenPopup(loc::T("Reboot Deathlord?"));
+         state.rebootRequested = false;
+     }
+-    if (state.modernUi.BeginPanelPopup("Reboot Deathlord?"))
++    if (state.modernUi.BeginPanelPopup(loc::T("Reboot Deathlord?")))
+     {
+-        ImGui::TextUnformatted("Deathlord hates you. Power-cycle the Apple //e?");
++        ImGui::TextUnformatted(loc::T("Deathlord hates you. Power-cycle the Apple //e?"));
+         ImGui::Spacing();
+-        if (state.modernUi.PanelButton("REBOOT"))
++        if (state.modernUi.PanelButton(loc::T("REBOOT")))
+         {
+             RebootEmulator(state);
+             ImGui::CloseCurrentPopup();
+         }
+         ImGui::SameLine();
+-        if (state.modernUi.PanelButton("CANCEL")) ImGui::CloseCurrentPopup();
++        if (state.modernUi.PanelButton(loc::T("CANCEL"))) ImGui::CloseCurrentPopup();
+         state.modernUi.EndPanelPopup();
+     }
+ 
+     if (state.newGameRequested)
+     {
+-        ImGui::OpenPopup("Start a clean new game?");
++        ImGui::OpenPopup(loc::T("Start a clean new game?"));
+         state.newGameRequested = false;
+     }
+-    if (state.modernUi.BeginPanelPopup("Start a clean new game?"))
++    if (state.modernUi.BeginPanelPopup(loc::T("Start a clean new game?")))
+     {
+         ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + 620.0f);
+         ImGui::TextUnformatted(
+-            "Starting a new game overwrites completely the existing hard disk image. "
+-            "You will lose all characters, active or inactive, and the game will reset "
+-            "from a brand new state. Are you sure that's what you want?");
++            loc::T("Starting a new game overwrites completely the existing hard disk image. "
++                   "You will lose all characters, active or inactive, and the game will reset "
++                   "from a brand new state. Are you sure that's what you want?"));
+         ImGui::PopTextWrapPos();
+         ImGui::Spacing();
+-        if (state.modernUi.PanelButton("YES"))
++        if (state.modernUi.PanelButton(loc::T("YES")))
+         {
+             std::string error;
+             if (!StartCleanNewGame(state, error))
+@@ -1782,27 +1793,30 @@ void RenderAppleWindow(AppState& state)
+             ImGui::CloseCurrentPopup();
+         }
+         ImGui::SameLine();
+-        if (state.modernUi.PanelButton("NO")) ImGui::CloseCurrentPopup();
++        if (state.modernUi.PanelButton(loc::T("NO"))) ImGui::CloseCurrentPopup();
+         state.modernUi.EndPanelPopup();
+     }
+ 
+     if (state.importConfirmationRequested)
+     {
+-        ImGui::OpenPopup("Import party?");
++        ImGui::OpenPopup(loc::T("Import party?"));
+         state.importConfirmationRequested = false;
+     }
+-    if (state.modernUi.BeginPanelPopup("Import party?"))
++    if (state.modernUi.BeginPanelPopup(loc::T("Import party?")))
+     {
+         if (state.partyToImport)
+         {
+-            const std::string prompt = "Are you sure you want to overwrite the current party "
+-                "with the party called " + state.partyToImport->partyName + ", exported on "
+-                + state.partyToImport->exportedAt + "? This cannot be undone!";
++            const std::string prompt = loc::Enabled()
++                ? "現在のパーティを、" + state.partyToImport->exportedAt + " に書き出したパーティ「"
++                      + state.partyToImport->partyName + "」で上書きしますか？ 元に戻せません！"
++                : "Are you sure you want to overwrite the current party "
++                  "with the party called " + state.partyToImport->partyName + ", exported on "
++                  + state.partyToImport->exportedAt + "? This cannot be undone!";
+             ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + 620.0f);
+             ImGui::TextUnformatted(prompt.c_str());
+             ImGui::PopTextWrapPos();
+             ImGui::Spacing();
+-            if (state.modernUi.PanelButton("YES"))
++            if (state.modernUi.PanelButton(loc::T("YES")))
+             {
+                 if (activeParty)
+                 {
+@@ -1819,7 +1833,7 @@ void RenderAppleWindow(AppState& state)
+                 ImGui::CloseCurrentPopup();
+             }
+             ImGui::SameLine();
+-            if (state.modernUi.PanelButton("NO"))
++            if (state.modernUi.PanelButton(loc::T("NO")))
+             {
+                 state.partyToImport.reset();
+                 ImGui::CloseCurrentPopup();
+@@ -1827,35 +1841,35 @@ void RenderAppleWindow(AppState& state)
+         }
+         else
+         {
+-            ImGui::TextUnformatted("No party is waiting to be imported.");
+-            if (state.modernUi.PanelButton("OK")) ImGui::CloseCurrentPopup();
++            ImGui::TextUnformatted(loc::T("No party is waiting to be imported."));
++            if (state.modernUi.PanelButton(loc::T("OK"))) ImGui::CloseCurrentPopup();
+         }
+         state.modernUi.EndPanelPopup();
+     }
+ 
+     if (state.operationErrorRequested)
+     {
+-        ImGui::OpenPopup("Operation failed");
++        ImGui::OpenPopup(loc::T("Operation failed"));
+         state.operationErrorRequested = false;
+     }
+-    if (state.modernUi.BeginPanelPopup("Operation failed"))
++    if (state.modernUi.BeginPanelPopup(loc::T("Operation failed")))
+     {
+         ImGui::TextWrapped("%s", state.operationError.c_str());
+         ImGui::Spacing();
+-        if (state.modernUi.PanelButton("OK")) ImGui::CloseCurrentPopup();
++        if (state.modernUi.PanelButton(loc::T("OK"))) ImGui::CloseCurrentPopup();
+         state.modernUi.EndPanelPopup();
+     }
+ 
+     if (state.operationNoticeRequested)
+     {
+-        ImGui::OpenPopup("Party operation complete");
++        ImGui::OpenPopup(loc::T("Party operation complete"));
+         state.operationNoticeRequested = false;
+     }
+-    if (state.modernUi.BeginPanelPopup("Party operation complete"))
++    if (state.modernUi.BeginPanelPopup(loc::T("Party operation complete")))
+     {
+         ImGui::TextUnformatted(state.operationNotice.c_str());
+         ImGui::Spacing();
+-        if (state.modernUi.PanelButton("OK")) ImGui::CloseCurrentPopup();
++        if (state.modernUi.PanelButton(loc::T("OK"))) ImGui::CloseCurrentPopup();
+         state.modernUi.EndPanelPopup();
+     }
+ }
+@@ -1910,7 +1924,13 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
+             }
+             const std::string key = event.substr(separator + 1);
+             const BYTE value = key == "SPACE" ? static_cast<BYTE>(' ')
+-                                                : static_cast<BYTE>(key.front());
++                             : key == "RETURN" ? static_cast<BYTE>(0x0D)
++                             : key == "ESC" ? static_cast<BYTE>(0x1B)
++                             : key == "LEFT" ? static_cast<BYTE>(0x08)
++                             : key == "RIGHT" ? static_cast<BYTE>(0x15)
++                             : key == "UP" ? static_cast<BYTE>(0x0B)
++                             : key == "DOWN" ? static_cast<BYTE>(0x0A)
++                                             : static_cast<BYTE>(key.front());
+             state->scheduledKeys.push_back({std::stoi(event.substr(0, separator)), value});
+         }
+         else if (arg == "--ui-fixture-mode" && i + 1 < argc)
+@@ -1982,6 +2002,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
+         std::fprintf(stderr, "Unable to initialize post-processor OpenGL functions\n");
+         return SDL_APP_FAILURE;
+     }
++    loc::Load(FindDlrlAssetsDir() / "ja");
++    loc::SetEnabled(state->japanese);
+     if (!state->modernUi.Initialize(FindDlrlAssetsDir(), FindPortableAssetsDir(),
+                                     &state->inventoryRules))
+         std::fprintf(stderr, "Unable to initialize the modern DLRL renderer\n");
+@@ -2096,6 +2118,12 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
+         state.mapViewMode = modes[event->key.key - SDLK_F2];
+         return SDL_APP_CONTINUE;
+     }
++    if (event->key.key == SDLK_F9 && loc::Loaded())
++    {
++        state.japanese = !state.japanese;
++        loc::SetEnabled(state.japanese);
++        return SDL_APP_CONTINUE;
++    }
+     if (event->key.key == SDLK_F10)
+     {
+         state.englishNames = !state.englishNames;
+@@ -2177,7 +2205,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
+                 const dlrl::PartySnapshot snapshot = dlrl::PartyTransfer::Capture();
+                 if (dlrl::PartyTransfer::Save(snapshot, exportPath, error))
+                 {
+-                    state.operationNotice = "The party was exported to " + exportPath.string();
++                    state.operationNotice = loc::T("The party was exported to ") + exportPath.string();
+                     state.operationNoticeRequested = true;
+                 }
+                 else
+diff --git a/tests/integration/DlrlCapture.cpp b/tests/integration/DlrlCapture.cpp
+index 7820a12..f3b1b64 100644
+--- a/tests/integration/DlrlCapture.cpp
++++ b/tests/integration/DlrlCapture.cpp
+@@ -65,8 +65,16 @@ bool ParseOptions(int argc, char** argv, Options& options)
+             const std::string event = argv[++i];
+             const auto separator = event.find(':');
+             if (separator == std::string::npos || separator + 1 >= event.size()) return false;
+-            options.keyEvents.push_back({std::stoi(event.substr(0, separator)),
+-                                         static_cast<BYTE>(event[separator + 1])});
++            const std::string key = event.substr(separator + 1);
++            const BYTE value = key == "SPACE" ? static_cast<BYTE>(' ')
++                             : key == "RETURN" ? static_cast<BYTE>(0x0D)
++                             : key == "ESC" ? static_cast<BYTE>(0x1B)
++                             : key == "LEFT" ? static_cast<BYTE>(0x08)
++                             : key == "RIGHT" ? static_cast<BYTE>(0x15)
++                             : key == "UP" ? static_cast<BYTE>(0x0B)
++                             : key == "DOWN" ? static_cast<BYTE>(0x0A)
++                                             : static_cast<BYTE>(key.front());
++            options.keyEvents.push_back({std::stoi(event.substr(0, separator)), value});
+         }
+         else return false;
+     }
+@@ -343,6 +351,8 @@ int main(int argc, char** argv)
+     {
+         std::ofstream memory(options.memoryOutput, std::ios::binary);
+         memory.write(reinterpret_cast<const char*>(MemGetMainPtr(0)), 0x10000);
++        std::ofstream aux(options.memoryOutput.string() + ".aux", std::ios::binary);
++        aux.write(reinterpret_cast<const char*>(MemGetAuxPtr(0)), 0x10000);
+     }
+     const bool wrote = WriteFramebufferBmp(options.output);
+     std::printf("DLRL HDV capture: frames=%d pc=$%04X framebuffer=%ux%u fnv1a64=%016llx output=%s\n",
