@@ -6,6 +6,7 @@
 日本語は原作の 7×8 ドットの文字に合わせ、8×8 ドットの「美咲ゴシック第2」で表示します。
 
 - **紹介ページ**: https://higesho.github.io/deathlord-relorded-jp/
+- **遊び方ガイド**: https://higesho.github.io/deathlord-relorded-jp/guide.html （コマンド・種族・職業・全呪文を日本語で）
 - **ダウンロード**: [Releases](https://github.com/higesho/deathlord-relorded-jp/releases/latest) の `DeathlordRelorded_JP_<版>.zip`
 
 ![キャラクター作成](docs/img/create.png)
@@ -17,7 +18,7 @@
 3. `dlrl.exe` を起動してタイトル画面が出ることを確かめる（OpenGL 対応のドライバが必要。署名のないテスト版なので、「PC が保護されました」が出たら「詳細情報」→「実行」）
 
 ゲームを始めるには、タイトルで何かキー →「キャラクター設定」でキャラクターを 6 人作る →「パーティを解散する」→「パーティを編成する」で 6 人のパーティを組む → メインメニューで「ゲームを始める」→ Space。
-コマンドや呪文の説明は原作のマニュアル（[Deathlord.pdf](https://archive.org/download/Deathlord/Deathlord.pdf)、英語）と、Relorded 同梱の `DOCUMENTATION.md` にあります。
+コマンドや呪文の説明は日本語の[遊び方ガイド](https://higesho.github.io/deathlord-relorded-jp/guide.html)にまとめています（英語の原本は [Deathlord.pdf](https://archive.org/download/Deathlord/Deathlord.pdf)、Relorded の変更点は同梱の `DOCUMENTATION.md`）。
 
 ## パッチの使い方
 1. Releases から `DeathlordRelorded_JP_<版>.zip` をダウンロードして展開する

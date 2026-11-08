@@ -28,8 +28,8 @@ Deathlord Relorded 日本語化パッチ __VERSION__
   ゲームの始め方：タイトルで何かキー →「キャラクター設定」でキャラクターを 6 人作る
   →「パーティを解散する」→「パーティを編成する」で 6 人のパーティを組む
   → メインメニューで「ゲームを始める」→ Space キー。
-  コマンドや呪文の説明は原作のマニュアル（https://archive.org/download/Deathlord/Deathlord.pdf、英語）と、
-  Relorded 同梱の DOCUMENTATION.md にあります。
+  コマンドや呪文の説明は日本語の遊び方ガイド（https://higesho.github.io/deathlord-relorded-jp/guide.html）に
+  まとめています。英語の原本は https://archive.org/download/Deathlord/Deathlord.pdf です。
 
 
 ■ インストール

@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deathlord 日本語 遊び方ガイド</title>
+<meta name="description" content="Deathlord（Deathlord Relorded）の日本語の遊び方ガイド。キャラクター作成、種族・職業、コマンド、会話、戦闘、全 84 種の呪文、場所と仕掛け、攻略のヒント。">
+<meta property="og:title" content="Deathlord 日本語 遊び方ガイド">
+<meta property="og:description" content="キャラクター作成からコマンド、全 84 種の呪文まで。Deathlord を日本語で遊ぶためのガイド。">
+<meta property="og:image" content="https://higesho.github.io/deathlord-relorded-jp/img/original.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0c0c;
+  --bg2: #191212;
+  --panel: #211818;
+  --line: #3d2b28;
+  --text: #ece2d6;
+  --muted: #b6a493;
+  --gold: #d9a35a;
+  --gold2: #f2cf8d;
+  --accent: #c86b4a;
+  --danger: #e48a6d;
+  --radius: 10px;
+  --serif: "Shippori Mincho B1", "Yu Mincho", "YuMincho", serif;
+  --sans: "Zen Kaku Gothic New", "Yu Gothic", "Meiryo", sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.85;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--gold2); }
+img { max-width: 100%; display: block; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(15,12,12,.55) 0%, rgba(15,12,12,.85) 60%, var(--bg) 100%),
+    url("img/field.jpg") center 40% / cover no-repeat;
+}
+.hero .wrap { padding-top: 88px; padding-bottom: 72px; }
+.eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  letter-spacing: .12em;
+  color: var(--gold2);
+  border: 1px solid rgba(217,163,90,.45);
+  border-radius: 999px;
+  padding: 2px 12px;
+  margin-bottom: 18px;
+  background: rgba(15,12,12,.5);
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 54px);
+  line-height: 1.25;
+  margin: 0 0 6px;
+  color: var(--gold2);
+  text-shadow: 0 2px 18px rgba(0,0,0,.7);
+}
+h1 small {
+  display: block;
+  font-size: .5em;
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: .04em;
+  margin-top: 6px;
+}
+.lead {
+  max-width: 660px;
+  font-size: 17px;
+  color: var(--text);
+  text-shadow: 0 1px 8px rgba(0,0,0,.8);
+  margin: 20px 0 30px;
+}
+.cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border-radius: var(--radius);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 17px;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn-primary {
+  background: linear-gradient(180deg, #e8b672, #c4823c);
+  color: #24140a;
+  box-shadow: 0 6px 24px rgba(217,163,90,.25), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(217,163,90,.35), inset 0 1px 0 rgba(255,255,255,.4); }
+.btn-ghost { color: var(--text); border: 1px solid var(--line); background: rgba(33,24,24,.7); }
+.btn-ghost:hover { border-color: var(--gold); }
+.btn svg { width: 20px; height: 20px; }
+.meta { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+section { padding: 64px 0 8px; }
+h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--gold2);
+  margin: 0 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+h3 { font-size: 18px; margin: 0 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+.muted { color: var(--muted); }
+
+.gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.shot { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.shot a { display: block; background: #000; }
+.shot img { width: 100%; aspect-ratio: 16 / 11; object-fit: cover; object-position: center; transition: opacity .15s; image-rendering: pixelated; }
+.shot a:hover img { opacity: .9; }
+.shot figcaption { padding: 10px 14px 12px; font-size: 14px; color: var(--muted); }
+.shot figcaption b { color: var(--text); font-weight: 700; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+.stat .num { font-family: var(--serif); font-size: 30px; font-weight: 800; color: var(--gold2); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.stat .lbl { font-size: 13px; color: var(--muted); }
+
+.features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 28px; list-style: none; padding: 0; margin: 0; }
+.features li { padding-left: 22px; position: relative; }
+.features li::before { content: ""; position: absolute; left: 2px; top: .78em; width: 8px; height: 8px; border-radius: 2px; background: var(--gold); transform: rotate(45deg); }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 14px; }
+.steps li {
+  counter-increment: step;
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px 14px 64px;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute; left: 18px; top: 16px;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--serif); font-weight: 800;
+  background: var(--gold); color: #24140a;
+}
+.steps li p:last-child { margin-bottom: 0; }
+code, kbd {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: .9em;
+  background: #2e2220;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.note {
+  border-left: 3px solid var(--accent);
+  background: rgba(200,107,74,.08);
+  padding: 12px 16px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 0 0 14px;
+}
+.note.warn { border-left-color: var(--danger); background: rgba(228,138,109,.08); }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.card ul { padding-left: 1.2em; margin: 0 0 12px; }
+table.keys { border-collapse: collapse; width: 100%; }
+table.keys td { padding: 4px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.keys td:first-child { white-space: nowrap; width: 1%; }
+
+footer { margin-top: 64px; border-top: 1px solid var(--line); padding: 28px 0 40px; font-size: 13px; color: var(--muted); }
+footer p { margin: 0 0 6px; }
+
+@media (max-width: 760px) {
+  .hero .wrap { padding-top: 56px; padding-bottom: 48px; }
+  .gallery, .features, .cols { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .wrap { padding: 0 16px; }
+  .btn { width: 100%; justify-content: center; }
+}
+</style>
+<style>
+.hero-small .wrap { padding-top: 64px; padding-bottom: 48px; }
+.hero-small { background: linear-gradient(180deg, rgba(15,12,12,.6) 0%, rgba(15,12,12,.9) 70%, var(--bg) 100%), url("img/original.jpg") center 40% / cover no-repeat; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 22px; }
+.toc a { font-size: 14px; text-decoration: none; color: var(--text); border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 3px 12px; }
+.toc a:hover { border-color: var(--gold); color: var(--gold2); }
+.table-wrap { overflow-x: auto; }
+table.data { border-collapse: collapse; width: 100%; font-size: 15px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+table.data th, table.data td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+table.data th { color: var(--gold2); font-weight: 700; background: var(--bg2); white-space: nowrap; }
+table.data td:first-child { white-space: nowrap; font-weight: 700; }
+table.data tr:last-child td { border-bottom: none; }
+table.keys2 td:nth-child(2) { white-space: nowrap; color: var(--gold2); }
+table.spells td:first-child { text-align: center; width: 2.5em; }
+table.spells td:nth-child(2) { white-space: nowrap; }
+.en { font-size: 12px; color: var(--muted); font-weight: 400; }
+.dl { display: inline-block; margin-top: 4px; font-size: 13px; color: var(--accent); }
+.spell-head { margin: 30px 0 10px; font-family: var(--serif); font-size: 21px; color: var(--gold2); }
+.spell-head .en { font-family: var(--sans); font-size: 14px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<header class="hero hero-small">
+  <div class="wrap">
+    <span class="eyebrow">非公式ファン翻訳 · 遊び方ガイド</span>
+    <h1>Deathlord<small>日本語 遊び方ガイド</small></h1>
+    <p class="lead">
+      原作のマニュアルとコマンドカードの内容をもとに、日本語化パッチの用語に合わせて書き起こしたガイドです。
+      キャラクター作成から、コマンド、戦闘、全 84 種の呪文まで、遊ぶのに必要なことをまとめています。
+    </p>
+    <div class="cta">
+      <a class="btn btn-ghost" href="./">← 日本語化パッチのページへ</a>
+    </div>
+    <p class="meta">英語の原本は <a href="https://archive.org/download/Deathlord/Deathlord.pdf">archive.org の Deathlord.pdf</a> で読めます。Relorded での変更点は同梱の <code>DOCUMENTATION.md</code> にあります。</p>
+  </div>
+</header>
+
+<nav class="toc wrap">
+  <a href="#story">物語と目的</a>
+  <a href="#party">パーティを作る</a>
+  <a href="#races">種族</a>
+  <a href="#stats">能力値</a>
+  <a href="#classes">職業</a>
+  <a href="#screen">画面の見方</a>
+  <a href="#basics">冒険の基本</a>
+  <a href="#commands">コマンド</a>
+  <a href="#talk">会話と取引</a>
+  <a href="#combat">戦闘</a>
+  <a href="#spells">呪文</a>
+  <a href="#places">場所と仕掛け</a>
+  <a href="#tips">攻略のヒント</a>
+</nav>
+
+<main class="wrap">
+
+  <section id="story">
+    <h2>物語と目的</h2>
+    <p>舞台はロルン（Lorn）の世界。コダン王国は、追放された魔法使いが率いる軍勢に荒らされ、国で二番目に大きな都市を失いました。
+    第九代皇帝ナカモトは冒険者に、悪の源を探し出して国に平和を取り戻すよう呼びかけ、成功した者には一人あたり金貨 10 万枚と南方の領地を約束しています。</p>
+    <p>一方、悪の首魁デスロードは冒険者をあざ笑い、「七つの言葉」と「六つの品」がなければ自分のもとへはたどり着けない、とほのめかします。</p>
+    <div class="note">
+      目的は、世界を旅して手がかりと品を集め、パーティを鍛え、悪の源を倒すことです。
+      町の人々との会話と看板が手がかりの中心なので、気になったことはメモを取りましょう。
+    </div>
+  </section>
+
+  <section id="party">
+    <h2>パーティを作る</h2>
+    <p>パーティは 1〜6 人で組めますが、<b>Deathlord Relorded は 6 人パーティ専用</b>です。
+    戦士系と呪文の使い手を混ぜ、錠前破りのできる盗賊系も入れると、力でも魔法でも切り抜けられる隊になります。</p>
+    <ol class="steps">
+      <li><h3>キャラクターを作る</h3>
+        <p>メインメニューで <kbd>C</kbd>（キャラクター設定）→「新たなキャラクターを作る」。種族を選ぶと能力値が振られます。
+        気に入るまで <kbd>N</kbd> で振り直し、<kbd>Y</kbd> で決定します（Relorded では <kbd>A</kbd> で自動の振り直しもできます）。
+        続いて職業・属性・性別・名前（9 文字まで）を決めます。選べる職業は、種族と能力値によって変わります。</p></li>
+      <li><h3>パーティを組む</h3>
+        <p>「パーティを解散する」で既存のパーティを名簿に戻してから、「パーティを編成する」で 6 人を選び、パーティ名を付けます。
+        属性の組み合わせによっては同じパーティに入れられない場合があります。</p></li>
+      <li><h3>冒険に出る</h3>
+        <p>メインメニューで <kbd>P</kbd>（ゲームを始める）を選びます。</p></li>
+    </ol>
+    <p class="muted">キャラクター設定にはほかに「キャラクターを見る」「キャラクターを抹消する」があります。
+    メインメニューの <kbd>U</kbd>（ユーティリティ）では、キャラクターの名前を変えたり、Bard's Tale I・Ultima III・Wizardry のキャラクターを取り込んだりできます（装備は引き継がれません）。</p>
+  </section>
+
+  <section id="races">
+    <h2>種族</h2>
+    <p>種族は 8 つ。能力値の範囲（作成時に振られる最小〜最大）が種族ごとに違います。
+    原作マニュアルの表には誤りがあるため、下の表は Relorded の作者が調べた正しい値です。
+    「Relorded の追加能力」は、Relorded の「種族・職業の追加ボーナス」をオンにしたときに付く能力です。</p>
+    <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>種族</th><th>筋力</th><th>体力</th><th>体格</th><th>知力</th><th>敏捷</th><th>魅力</th><th>魔力</th><th>特徴</th></tr></thead>
+      <tbody>
+        <tr><td>人間<br><span class="en">Human</span></td><td>3-18</td><td>3-18</td><td>8-18</td><td>3-18</td><td>3-18</td><td>3-18</td><td>3-18</td><td>丈夫で力強く、ロルンでいちばん多い種族。どの職業にもなれるのは人間だけ。</td></tr>
+        <tr><td>トシ<br><span class="en">Toshi（エルフ）</span></td><td>3-13</td><td>3-13</td><td>3-12</td><td>8-19</td><td>8-19</td><td>7-18</td><td>8-19</td><td>賢く長命で呪文向き。体は弱い。<br><span class="dl">Relorded：沼・サボテンで傷を負わない</span></td></tr>
+        <tr><td>ニントシ<br><span class="en">Nintoshi（ハーフエルフ）</span></td><td>3-15</td><td>3-15</td><td>5-14</td><td>6-18</td><td>6-18</td><td>5-18</td><td>5-18</td><td>人間とトシの混血。人間より賢く、トシより強い。たいていの職業をこなせる。<br><span class="dl">Relorded：沼・サボテンで傷を負わない</span></td></tr>
+        <tr><td>コビト<br><span class="en">Kobito（ドワーフ）</span></td><td>8-19</td><td>8-19</td><td>3-8</td><td>3-16</td><td>3-16</td><td>3-16</td><td>3-16</td><td>小柄だが頑丈で力が強い。呪文は苦手で、戦士か盗賊向き。</td></tr>
+        <tr><td>ノーム<br><span class="en">Gnome</span></td><td>5-18</td><td>8-18</td><td>3-6</td><td>3-17</td><td>6-18</td><td>3-16</td><td>3-17</td><td>コビトに似るが自然を敬い、社交的で呪文も好む。幻術師に向く。<br><span class="dl">Relorded：リーダーのとき、ダンジョンや塔の暗闇でも最大距離まで見える</span></td></tr>
+        <tr><td>オバケ<br><span class="en">Obake</span></td><td>3-15</td><td>3-16</td><td>3-7</td><td>3-14</td><td>8-20</td><td>3-14</td><td>3-18</td><td>小さく身軽で、盗賊や暗殺者に向く。<br><span class="dl">Relorded：隠し扉・特別な木・墓石を自動で見つける。リーダーのとき落とし穴も見抜く</span></td></tr>
+        <tr><td>トロール<br><span class="en">Troll</span></td><td>11-21</td><td>11-20</td><td>13-21</td><td>3-11</td><td>3-13</td><td>3-9</td><td>3-12</td><td>力は強いが呪文には鈍い。戦士がいちばんの適職。司祭にもなれる。<br><span class="dl">Relorded：沼・サボテンで傷を負わない</span></td></tr>
+        <tr><td>オーガ<br><span class="en">Ogre</span></td><td>8-19</td><td>8-19</td><td>11-19</td><td>3-13</td><td>3-13</td><td>3-11</td><td>3-14</td><td>人間とトロールの混血。人間より強く、トロールより賢い。戦士・盗賊のほか司祭もこなす。<br><span class="dl">Relorded：沼・サボテンで傷を負わない</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="stats">
+    <h2>能力値</h2>
+    <p>能力値は 7 つで、冒険の中で上がったり下がったりします。</p>
+    <div class="table-wrap">
+    <table class="data">
+      <tbody>
+        <tr><td>筋力<br><span class="en">STR</span></td><td>戦闘で与えるダメージ。戦士には高い筋力がほしい。</td></tr>
+        <tr><td>体力<br><span class="en">CON</span></td><td>健康とタフさ。高いほど倒れにくい。蘇生のときにも関わる。</td></tr>
+        <tr><td>体格<br><span class="en">SIZ</span></td><td>体の大きさ。戦士は大きく、呪文の使い手は小さい傾向。扉を打ち破るなど、重さがものを言う場面で有利。</td></tr>
+        <tr><td>知力<br><span class="en">INT</span></td><td>頭の働き。呪文の使い手は呪文の腕が上がり、魔力の回復も早くなる。</td></tr>
+        <tr><td>敏捷<br><span class="en">DEX</span></td><td>身のこなし。攻撃をかわし、先手を取りやすくなる。盗賊の錠前破り・罠よけ・盗みにも影響。</td></tr>
+        <tr><td>魅力<br><span class="en">CHA</span></td><td>容姿と説得力。取引や交渉に影響する（Relorded の作者の調べでは、レベルアップ費用がわずかに下がる程度）。</td></tr>
+        <tr><td>魔力<br><span class="en">POW</span></td><td>魔法の素質。呪文を唱えられる回数を決める。呪文はレベルと同じだけ魔力を使う（4 レベルの呪文なら 4）。</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="classes">
+    <h2>職業</h2>
+    <p>職業は 16。大きく戦士系・盗賊系・僧侶系・魔法使い系に分かれます。ゲーム内では疑似日本語の名前（<kbd>F10</kbd> で英語の D&amp;D 名）で表示され、日本語化パッチではどちらも日本語の訳名になります。</p>
+    <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>職業</th><th>系統</th><th>特徴</th></tr></thead>
+      <tbody>
+        <tr><td>戦士<br><span class="en">Senshi</span></td><td>戦士</td><td>報酬しだいでどんな仕事も請け負う傭兵。どの鎧も武器も使える。</td></tr>
+        <tr><td>騎士<br><span class="en">Kishi</span></td><td>戦士</td><td>名誉と正義を重んじる高潔な戦士。司祭の呪文も少し使う。</td></tr>
+        <tr><td>猟師<br><span class="en">Ryoshi</span></td><td>戦士</td><td>斥候・追跡の名手。あらゆる武器を扱い、特に弓と斧を好む。身軽さを保つため軽い鎧向き。<br><span class="dl">Relorded：沼・サボテンで傷を負わない／地上で食料を集める／毒の泉と恵みの泉・隠し扉・特別な木と墓石を見抜く／リーダーのとき落とし穴を見抜く</span></td></tr>
+        <tr><td>野蛮人<br><span class="en">Yabanjin</span></td><td>戦士</td><td>北方の荒くれ者。技はないが、しぶとく凶暴。重い鎧は嫌う。<br><span class="dl">Relorded：沼・サボテンで傷を負わない／毒の泉と恵みの泉を見抜く</span></td></tr>
+        <tr><td>狂戦士<br><span class="en">Kichigai</span></td><td>戦士</td><td>戦闘で我を忘れて暴れ、すさまじい力を出すが、守りがおろそかになる。重い鎧は嫌う。</td></tr>
+        <tr><td>侍<br><span class="en">Samurai</span></td><td>戦士</td><td>剣技を誇る名誉ある武人。名誉の武器を持つと腕前が最高になる。</td></tr>
+        <tr><td>浪人<br><span class="en">Ronin</span></td><td>戦士</td><td>自分のことしか考えない無頼漢。汚い手も使う。守護神からわずかな司祭の呪文を授かる。</td></tr>
+        <tr><td>ヤクザ<br><span class="en">Yakuza</span></td><td>盗賊</td><td>錠前破りと罠外しがいちばん得意。戦いはそれほどでもない。店から盗むこともある。<br><span class="dl">Relorded：武器・防具の宝箱、隠し扉、特別な木と墓石を見抜く／リーダーのとき落とし穴を見抜く</span></td></tr>
+        <tr><td>暗殺者<br><span class="en">Ansatsusha</span></td><td>盗賊</td><td>ヤクザより戦いに強く、使える武器も多い。盗賊の技は少しだけ。</td></tr>
+        <tr><td>忍者<br><span class="en">Ninja</span></td><td>盗賊</td><td>素手の格闘の達人。普通の武器もそこそこ使える。</td></tr>
+        <tr><td>修験者<br><span class="en">Shukenja</span></td><td>盗賊</td><td>忍者に似るが、暗殺ではなく悟りのために修行する。戦いは忍者に劣るが、呪文を少し使う。</td></tr>
+        <tr><td>司祭<br><span class="en">Shisai</span></td><td>僧侶</td><td>回復と守りの呪文の使い手。中くらいの重さの鎧と、刃のない武器を使う。</td></tr>
+        <tr><td>自然術師<br><span class="en">Shizen</span></td><td>僧侶</td><td>自然の力を借りる秘密の教団。金属の鎧は呪文の力を弱めるので、ふつうは革の鎧。<br><span class="dl">Relorded：沼・サボテンで傷を負わない／毒の泉と恵みの泉を見抜く</span></td></tr>
+        <tr><td>魔法使い<br><span class="en">Mahotsukai</span></td><td>魔法使い</td><td>数の少ない尊敬される職業。戦いは弱いが、敵を倒す強力な呪文を持つ。</td></tr>
+        <tr><td>幻術師<br><span class="en">Genkai</span></td><td>魔法使い</td><td>幻で敵を惑わす。守りの呪文が中心。魔法使いより数が少ない。<br><span class="dl">Relorded：テレポーターとシュート、幻の壁と岩を見抜く</span></td></tr>
+        <tr><td>小作人<br><span class="en">Kosaku</span></td><td>その他</td><td>誰も相手にしない最下層の民。<br><span class="dl">Relorded：地上で食料を集める／毒の沼や炎などの地形で一切傷を負わない／5 レベルごとに能力値がランダムに 1 上がる（上限なし）</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="cols" style="margin-top:18px">
+      <div class="card"><h3>属性</h3><p>善・中立・悪の 3 つ。属性によっては同じパーティに入れられない組み合わせがあります。生まれつき善か悪が決まっている職業では、属性は自動で決まります。</p></div>
+      <div class="card"><h3>性別</h3><p>能力にはほとんど関係しません。女性の戦士も男性と同じように竜の首を取れます。</p></div>
+    </div>
+  </section>
+
+  <section id="screen">
+    <h2>画面の見方</h2>
+    <p>オリジナル画面（Relorded では <kbd>F11</kbd>）の配置です。Relorded のモダン画面でも、同じ情報が左右のパネルに出ます。</p>
+    <ul class="features">
+      <li><b>右上</b>：時刻と、太陽・月の満ち欠け。その下にパーティ名</li>
+      <li><b>右中央</b>：パーティの名前（並び順）と HP。リーダーは反転表示</li>
+      <li><b>その下</b>：現在地の種類（屋外・屋内など）。戦闘中は敵の種類と数</li>
+      <li><b>右下</b>：コマンドの結果。戦闘中は敵味方の攻撃の様子</li>
+      <li><b>左下</b>：入力したコマンド</li>
+      <li><b>左上の大きな部分</b>：冒険の舞台</li>
+    </ul>
+  </section>
+
+  <section id="basics">
+    <h2>冒険の基本</h2>
+    <div class="cols">
+      <div class="card"><h3>リーダー</h3><p>反転表示のキャラクターがリーダーで、ふだんの行動はリーダーが行います。<kbd>N</kbd> と番号でリーダーを変更。
+      多くのコマンドは、キーの後に番号（1〜6）を入れると、その人に行動させられます（例：<kbd>P</kbd> <kbd>3</kbd> 方向 → 3 番が錠を開ける）。</p></div>
+      <div class="card"><h3>時間</h3><p>現実の約 5 分でゲーム内の 1 時間。行動するほど時間は早く進みます。
+      18 時ごろ日が沈み、4 時ごろ夜が明けます。夜は松明を灯して進むか、キャンプで夜明けを待ちます。</p></div>
+      <div class="card"><h3>持ち物の上限</h3><p>1 人あたり 金 10,000・食料 100・松明 10。
+      装備はそれぞれ 1 つずつ：近接武器・射撃武器・鎧・盾・兜などの防具・道具（錠前破りや聖印など）・装飾品・巻物。
+      鎧は買うと自動で身に着け、それまでの鎧は（誰かに渡さない限り）捨てることになります。</p></div>
+      <div class="card"><h3>経験とレベルアップ</h3><p>戦って敵を攻撃するほど経験値が入ります（逃走や交渉では入りません）。
+      レベルを上げられるようになると名前の横に <b>+</b> が付くので、訓練所で費用を払ってレベルを上げます。</p></div>
+      <div class="card"><h3>ケガ・毒・病気</h3><p>HP は時間と休息で回復します。毒や病気は休むだけでは治らず、呪文や魔法の泉、寺院の治療（お布施が必要）で治します。</p></div>
+      <div class="card"><h3>死と全滅</h3><p>死んだ仲間は寺院で蘇生でき（有料）、高レベルの呪文でも生き返らせられます。
+      全員が倒れるとゲームは止まります（Relorded では <kbd>Cmd/Alt-R</kbd> で再起動）。原作では、名簿のバックアップから戻すか、生きているキャラクターで蘇生させます。</p></div>
+    </div>
+  </section>
+
+  <section id="commands">
+    <h2>コマンド一覧</h2>
+    <p>ほとんどのコマンドはどこでも使えます。方向は矢印キー、または <kbd>I</kbd> 北・<kbd>J</kbd> 西・<kbd>K</kbd> 東・<kbd>M</kbd> 南で指定します。
+    途中でやめるときは <kbd>Esc</kbd>。</p>
+    <div class="table-wrap">
+    <table class="data keys2">
+      <thead><tr><th>キー</th><th>コマンド</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>A</kbd></td><td>攻撃</td><td>方向を指定して戦闘を仕掛ける。</td></tr>
+        <tr><td><kbd>B</kbd></td><td>乗船／下船・キャンプをたたむ</td><td>方向を指定して船に乗る・陸に降りる。キャンプ中ならキャンプをたたむ。</td></tr>
+        <tr><td><kbd>C</kbd></td><td>呪文を唱える</td><td>キャラクターの番号と呪文名を入力（名前は全部打つ）。<kbd>Shift</kbd>+<kbd>?</kbd> でその人が使える呪文の一覧。「Cast」の横の数字が残りの魔力。</td></tr>
+        <tr><td><kbd>D</kbd></td><td>捨てる</td><td>E 装備 / F 食料 / G 金 / T 松明 を選んで捨てる。捨てた物は拾い直せない。</td></tr>
+        <tr><td><kbd>E</kbd></td><td>入る</td><td>方向を指定して建物や場所に入る。見えていない場所にも入れることがある。</td></tr>
+        <tr><td><kbd>F</kbd></td><td>調べる</td><td>方向を指定して罠や隠し扉など、変わったものを探す。</td></tr>
+        <tr><td><kbd>G</kbd></td><td>取る</td><td>宝箱・棺・小箱を開ける、壺から金を取る、店の品を盗む。方向を指定。</td></tr>
+        <tr><td><kbd>H</kbd></td><td>隠れる</td><td>モンスターから身を隠そうとする。何か行動すると見つかる。</td></tr>
+        <tr><td><kbd>I</kbd> <kbd>J</kbd> <kbd>K</kbd> <kbd>M</kbd></td><td>移動</td><td>北・西・東・南へ 1 マス（矢印キーでも可）。</td></tr>
+        <tr><td><kbd>L</kbd></td><td>松明を灯す</td><td>番号を指定。その人が松明を持っていれば灯す。</td></tr>
+        <tr><td><kbd>N</kbd></td><td>新しいリーダー</td><td>番号を指定してリーダーを変える。</td></tr>
+        <tr><td><kbd>O</kbd></td><td>話しかける</td><td>方向を指定してパーティ外の人と話す。<a href="#talk">会話と取引</a>を参照。</td></tr>
+        <tr><td><kbd>P</kbd></td><td>錠を開ける</td><td>方向を指定。道具を持った人が錠前破りを試みる。</td></tr>
+        <tr><td><kbd>Ctrl-P</kbd></td><td>キャンプ</td><td>1〜24 時間キャンプする。HP と魔力の回復が早まる。キャンプ中も襲われることがある。</td></tr>
+        <tr><td><kbd>Q</kbd></td><td>セーブ</td><td>戦闘中以外はいつでもセーブできる。</td></tr>
+        <tr><td><kbd>R</kbd></td><td>読む</td><td>方向を指定して看板を読む。</td></tr>
+        <tr><td><kbd>S</kbd></td><td>打ち破る</td><td>方向を指定して扉などに体当たりする。失敗するとダメージ。</td></tr>
+        <tr><td><kbd>T</kbd></td><td>渡す</td><td>E 装備 / F 食料 / G 金 / T 松明 を選び、受け取る人と渡す人を指定。受け取る側がいっぱいだと何かを落とす。</td></tr>
+        <tr><td><kbd>U</kbd></td><td>使う</td><td>番号を指定し、持ち物から使う物を選ぶ。名前の後の数字は残り回数、<b>**</b> は無制限。</td></tr>
+        <tr><td><kbd>V</kbd></td><td>見る</td><td>方向を指定して、隣にある物や人の情報を見る。</td></tr>
+        <tr><td><kbd>W</kbd></td><td>構える</td><td>O 素手 / H 近接武器 / M 射撃武器 を選ぶ。</td></tr>
+        <tr><td><kbd>X</kbd></td><td>交換</td><td>仲間どうしで装備を交換する。</td></tr>
+        <tr><td><kbd>Y</kbd></td><td>叫ぶ</td><td>好きな言葉を叫ぶ。旅で見つけた「特別な言葉」を叫ぶ場面がある（呪文 KAERU の合言葉もこれ）。</td></tr>
+        <tr><td><kbd>Z</kbd></td><td>飲む</td><td>番号と方向を指定して、ダンジョンの泉の水を飲む。</td></tr>
+        <tr><td><kbd>1</kbd>〜<kbd>6</kbd></td><td>能力表示</td><td>その番号のキャラクターの情報（概要→能力値→持ち物→装備・金・松明・食料）。<kbd>Return</kbd> でリーダーの情報。</td></tr>
+        <tr><td><kbd>#</kbd></td><td>並び替え</td><td>パーティの並び順を変える。</td></tr>
+        <tr><td><kbd>$</kbd></td><td>金をまとめる</td><td>仲間の金を指定した人に集める（上限を超えた分は元の人に残る）。</td></tr>
+        <tr><td><kbd>^</kbd></td><td>落とし穴から出る</td><td>落とし穴に落ちたときに這い上がる（Relorded では移動キーでも出られる設定あり）。</td></tr>
+        <tr><td><kbd>Ctrl-A</kbd></td><td>マクロ登録</td><td>よく使うコマンドの並びを 4 つまで登録できる。カンマが Return の代わり（例：<code>C,NASU,</code> でリーダーが NASU を唱える）。</td></tr>
+        <tr><td><kbd>Ctrl-S</kbd></td><td>音のオン/オフ</td><td></td></tr>
+        <tr><td><kbd>Space</kbd></td><td>待つ</td><td>1 手休む（戦闘中は手番を飛ばす）。</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="muted">Relorded 独自のキー：<kbd>Insert</kbd> インベントリ、<kbd>Alt-S</kbd> 呪文一覧、<kbd>Alt-L</kbd> メッセージ履歴、<kbd>F9</kbd> 日本語/英語、<kbd>F10</kbd> 職業名の切り替え、<kbd>F11</kbd> オリジナル画面、<kbd>Alt-P</kbd> 一時停止。</p>
+  </section>
+
+  <section id="talk">
+    <h2>会話と取引</h2>
+    <p>手がかりの多くは人々との会話から得られます。<kbd>O</kbd> と方向で話しかけ、「Type」と出たら次の文字を入力します。
+    <kbd>Return</kbd> だけを押すか <kbd>Esc</kbd> で会話を終えます。</p>
+    <div class="table-wrap">
+    <table class="data keys2">
+      <tbody>
+        <tr><td><kbd>B</kbd></td><td>買う</td><td>店で品物を買う。</td></tr>
+        <tr><td><kbd>S</kbd></td><td>売る</td><td>いらない品を店に売る。</td></tr>
+        <tr><td><kbd>C</kbd></td><td>雑談</td><td>気軽な世間話。</td></tr>
+        <tr><td><kbd>T</kbd></td><td>話す</td><td>相手から情報を聞き出す。</td></tr>
+        <tr><td><kbd>I</kbd></td><td>尋ねる</td><td>「Re:」の後に話題の言葉を<b>英語で</b>入力し、そのことについて聞く。日本語化パッチでは、台詞の中のキーワードになりそうな語に「塔(TOWER)」のように英語を添えています。</td></tr>
+        <tr><td><kbd>O</kbd> <kbd>G</kbd></td><td>金を払う</td><td>「Pay up」と言う相手に金を渡す。</td></tr>
+        <tr><td><kbd>O</kbd> <kbd>I</kbd></td><td>品物を渡す</td><td>装備や品物を相手に渡す。</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="muted">大事な情報を持つ人ほど、目立たない隅にいることがあります。看板（<kbd>R</kbd>）にも手がかりがあります。</p>
+  </section>
+
+  <section id="combat">
+    <h2>戦闘</h2>
+    <p>攻撃したりされたりするのは、並び順の<b>前の 3 人だけ</b>です。戦士を前に、呪文の使い手を後ろに置きましょう
+    （Relorded の「後列から射撃できる」をオンにすると、後列も射撃武器で攻撃できます）。
+    強敵には戦士の攻撃と強い呪文を重ね、弱い敵は呪文 1 回やわずかな攻撃で片付けるのが基本です。</p>
+    <div class="table-wrap">
+    <table class="data keys2">
+      <thead><tr><th>キー</th><th>行動</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>A</kbd></td><td>攻撃</td><td>敵を攻撃する。</td></tr>
+        <tr><td><kbd>C</kbd></td><td>呪文</td><td>呪文を唱える。</td></tr>
+        <tr><td><kbd>U</kbd></td><td>使う</td><td>道具を使う。</td></tr>
+        <tr><td><kbd>W</kbd></td><td>構える</td><td>武器を持ち替える。</td></tr>
+        <tr><td><kbd>Y</kbd></td><td>叫ぶ</td><td>言葉を叫ぶ・話す。</td></tr>
+        <tr><td><kbd>N</kbd></td><td>交渉</td><td>モンスターと交渉する（食べ物を差し出す、命乞いをするなど）。去る・金を要求して去る・金を取って結局襲う、などの結果になる。</td></tr>
+        <tr><td><kbd>F</kbd></td><td>逃げる</td><td>パーティ全員で逃げる。早いほど成功しやすい。</td></tr>
+        <tr><td><kbd>R</kbd></td><td>下がる</td><td>その人を次のラウンドで列の最後尾に下げる。傷ついた仲間を守るのに便利。</td></tr>
+        <tr><td><kbd>S</kbd></td><td>手番を飛ばす</td><td>その人と、それ以降の人の攻撃を飛ばす。後ろにまとめた呪文の使い手を休ませるときに。</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>次の人へ</td><td>手番を次の人に回す。</td></tr>
+        <tr><td><kbd>Return</kbd></td><td>能力表示</td><td>今のキャラクターの情報を見る。</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="muted">逃げたり交渉したりした戦闘では経験値は入りません。</p>
+  </section>
+
+  <section id="spells">
+    <h2>呪文</h2>
+    <p>呪文の使い手は 4 系統で、それぞれ 1〜7 レベルの呪文が 3 つずつあります。術者のレベルが上がるほど、高いレベルの呪文を使えるようになります。
+    呪文は<b>レベルと同じだけ魔力を使い</b>、魔力は時間と休息で回復します。唱えるときは <kbd>C</kbd> の後に呪文名を<b>ローマ字で全部</b>入力します。</p>
+    <p class="muted">騎士と浪人は司祭の呪文を、修験者はいくつかの呪文を使えます。下の英語は Relorded の呪文一覧（<kbd>Alt-S</kbd>）での表記です。</p>
+
+    <h3 class="spell-head">司祭の呪文 <span class="en">Shisai — 回復と守り</span></h3>
+    <div class="table-wrap"><table class="data spells">
+      <thead><tr><th>Lv</th><th>呪文名</th><th>効果</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>NASU</code></td><td>1 人の HP を 1〜8 回復（術者自身も可）。死者・石化・病気は治せない。</td></tr>
+        <tr><td>1</td><td><code>AKARI</code></td><td>術者の周りを青白く照らす。ダンジョンなど風のない場所でだけ効く。</td></tr>
+        <tr><td>1</td><td><code>KATAI</code></td><td>戦闘中、1 人を守りのオーラで包み、当たりにくくする。重ねがけできる。</td></tr>
+        <tr><td>2</td><td><code>MOTU</code></td><td>敵 1〜3 体を麻痺させる。敵ごとに抵抗の判定あり。</td></tr>
+        <tr><td>2</td><td><code>DOSOI</code></td><td>毒の進行を遅らせ、毒による HP の減りを半分にする。</td></tr>
+        <tr><td>2</td><td><code>TSUIHO</code></td><td>近くのアンデッドを退散させる。数少ない攻撃的な司祭の呪文。</td></tr>
+        <tr><td>3</td><td><code>MOAKARI</code></td><td>AKARI より広い範囲を照らす。風のない場所でだけ効く。</td></tr>
+        <tr><td>3</td><td><code>MOTUNASU</code></td><td>麻痺を治す。麻痺した司祭は唱えられない。</td></tr>
+        <tr><td>3</td><td><code>ONKEI</code></td><td>戦闘中、パーティ全員を祝福し、戦う力を高める。</td></tr>
+        <tr><td>4</td><td><code>DONASU</code></td><td>毒を消す。毒で失った HP は戻らない。</td></tr>
+        <tr><td>4</td><td><code>MONASU</code></td><td>HP を 17〜32 回復。</td></tr>
+        <tr><td>4</td><td><code>MAKATAI</code></td><td>戦闘中、パーティ全体を守りの球で包む。</td></tr>
+        <tr><td>5</td><td><code>HINAGU</code></td><td>炎の柱で敵を焼く。威力は術者のレベルしだい。</td></tr>
+        <tr><td>5</td><td><code>INOCHI</code></td><td>死者を生き返らせる（HP 1、体力が永久に 1 下がる）。成功は体力しだい。失敗したら MOINOCHI を。</td></tr>
+        <tr><td>5</td><td><code>HONASU</code></td><td>HP を 33〜64 回復。</td></tr>
+        <tr><td>6</td><td><code>ALNASU</code></td><td>HP をすべて回復する、最も強い回復呪文。</td></tr>
+        <tr><td>6</td><td><code>KURENZA</code></td><td>すべての敵を吹き飛ばす。威力は術者のレベルしだい。</td></tr>
+        <tr><td>6</td><td><code>KAERU</code></td><td>今いる場所を帰還地点にし、合言葉を決める。あとで <kbd>Y</kbd> でその言葉を叫ぶと、パーティがそこへ瞬間移動する。</td></tr>
+        <tr><td>7</td><td><code>SHINSEIGO</code></td><td>敵を大地に呑ませ、地獄へ送る。</td></tr>
+        <tr><td>7</td><td><code>MOINOCHI</code></td><td>死者を活力ごと生き返らせる（体力は下がらない。石化は不可）。失敗しても再挑戦できる。</td></tr>
+        <tr><td>7</td><td><code>YAWARISHI</code></td><td>石になった者を肉体に戻す、最後の望み。</td></tr>
+      </tbody></table></div>
+
+    <h3 class="spell-head">自然術師の呪文 <span class="en">Shizen — 自然の力</span></h3>
+    <div class="table-wrap"><table class="data spells">
+      <thead><tr><th>Lv</th><th>呪文名</th><th>効果</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>KUSAMOTSU</code></td><td>草木で敵 1〜4 体をからめ取る。草・茂み・木のある場所でだけ効く。</td></tr>
+        <tr><td>1</td><td><code>HIKAKOMU</code></td><td>敵をゆらめく炎で包み、戦闘中ずっと味方の攻撃を当たりやすくする。</td></tr>
+        <tr><td>1</td><td><code>ICHIHAN</code></td><td>ダンジョンで今いる深さ（地下何階か）を知る。テレポートの後に便利。</td></tr>
+        <tr><td>2</td><td><code>KINO</code></td><td>1 人の皮膚を木の根のように硬くする。重ねがけできる。</td></tr>
+        <tr><td>2</td><td><code>DUNASU</code></td><td>HP を 1〜8 回復（術者自身も可）。死者・石化・病気は治せない。</td></tr>
+        <tr><td>2</td><td><code>MOYA</code></td><td>パーティの周りに濃い霧を起こし、戦闘から逃げやすくする。</td></tr>
+        <tr><td>3</td><td><code>BYOKINASU</code></td><td>ほとんどの病気を治す（ミイラの呪いも）。HP は戻らない。</td></tr>
+        <tr><td>3</td><td><code>KONPASU</code></td><td>海の上で陸の方角を知る。</td></tr>
+        <tr><td>3</td><td><code>YOBUZUMA</code></td><td>天から稲妻を落として敵を撃つ。</td></tr>
+        <tr><td>4</td><td><code>HITATE</code></td><td>パーティを普通の火と熱から守る（魔法の火には効かない）。</td></tr>
+        <tr><td>4</td><td><code>SANTATE</code></td><td>酸などの腐食する液体から守る（防げない酸もあるが、被害は減る）。</td></tr>
+        <tr><td>4</td><td><code>TABEMONO</code></td><td>草木から日持ちする食料を作る。量は草木しだい。</td></tr>
+        <tr><td>5</td><td><code>HIKABE</code></td><td>敵を藍色の炎の壁で囲む。威力は術者のレベルしだい。</td></tr>
+        <tr><td>5</td><td><code>DRUNASU</code></td><td>HP を 17〜32 回復。</td></tr>
+        <tr><td>5</td><td><code>JISHIN</code></td><td>地面を割り、身のこなしの鈍い敵を地の底に落とす。</td></tr>
+        <tr><td>6</td><td><code>HIARASHI</code></td><td>巨大な炎の雲を放ち、行く手の敵を焼き払う。</td></tr>
+        <tr><td>6</td><td><code>KYOKI</code></td><td>敵を狂わせる。多くはさまよって死ぬが、逆に凶暴になる敵もいる。</td></tr>
+        <tr><td>6</td><td><code>TSUKAKUSU</code></td><td>パーティが周りの地形に溶け込み、見られずに野外を歩ける。</td></tr>
+        <tr><td>7</td><td><code>KONRAN</code></td><td>抵抗に失敗した敵は、倒されるまで呆然と立ちつくす。</td></tr>
+        <tr><td>7</td><td><code>KOMARU</code></td><td>指さした敵 1 体を即死させる。成功率が高い。</td></tr>
+        <tr><td>7</td><td><code>DRUINOCHI</code></td><td>死者を生き返らせる（HP 1、体力が永久に 1 下がる）。</td></tr>
+      </tbody></table></div>
+
+    <h3 class="spell-head">魔法使いの呪文 <span class="en">Mahotsukai — 攻撃</span></h3>
+    <div class="table-wrap"><table class="data spells">
+      <thead><tr><th>Lv</th><th>呪文名</th><th>効果</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>TODO</code></td><td>小さな火の玉で敵 1 体を撃つ。数は術者のレベルしだい（最大 4 発）。</td></tr>
+        <tr><td>1</td><td><code>NERU</code></td><td>レベルの低い敵を深く眠らせる。</td></tr>
+        <tr><td>1</td><td><code>TATE</code></td><td>戦闘中、1 人を敵の攻撃から守る。重ねがけできる。</td></tr>
+        <tr><td>2</td><td><code>CHIKARA</code></td><td>パーティに力をみなぎらせ、与えるダメージを増やす。重ねがけできる。</td></tr>
+        <tr><td>2</td><td><code>YOWAMERU</code></td><td>敵を弱らせ、受けるダメージを減らす。重ねがけできる。</td></tr>
+        <tr><td>2</td><td><code>KOWA</code></td><td>敵 1 体を恐怖で逃げ出させる。</td></tr>
+        <tr><td>3</td><td><code>ZUMA</code></td><td>稲妻の幕を放ち、敵の列をなぎ倒す。</td></tr>
+        <tr><td>3</td><td><code>ISOGU</code></td><td>生きている仲間の動きを速め、毎ラウンド攻撃を 1 回増やす。</td></tr>
+        <tr><td>3</td><td><code>KUMO</code></td><td>粘つく蜘蛛の糸で辺りの敵を縛る。</td></tr>
+        <tr><td>4</td><td><code>HITAMA</code></td><td>火の玉を敵の中で爆発させる。威力は術者のレベルしだい。</td></tr>
+        <tr><td>4</td><td><code>UGOKU</code></td><td>パーティを 1〜8 マス先へランダムに逃がす。着地先に壁や物があると失敗。</td></tr>
+        <tr><td>4</td><td><code>MOKOWA</code></td><td>敵全体を恐怖に陥れ、抵抗に失敗した敵は持ち物を落として逃げる。</td></tr>
+        <tr><td>5</td><td><code>DOKUMO</code></td><td>黒い毒煙で敵を包み、よほど強い敵以外は窒息させる。</td></tr>
+        <tr><td>5</td><td><code>KOORI</code></td><td>拳ほどの氷の塊を敵に浴びせる。威力は術者のレベルしだい。</td></tr>
+        <tr><td>5</td><td><code>HOHYO</code></td><td>戦闘中、術者と仲間を透き通らせ、当たりにくくする。</td></tr>
+        <tr><td>6</td><td><code>KOROSU</code></td><td>敵対する者は、抵抗しなければ即死する。</td></tr>
+        <tr><td>6</td><td><code>UNMEI</code></td><td>敵を指さし、力ある言葉で 1 体を滅ぼす。</td></tr>
+        <tr><td>6</td><td><code>ARASHI</code></td><td>地獄のような青い炎の嵐で敵を焼き尽くす。</td></tr>
+        <tr><td>7</td><td><code>TOKI</code></td><td>敵の時間を止め、その間に逃げたり動き回ったりできる。</td></tr>
+        <tr><td>7</td><td><code>UNPAN</code></td><td>ダンジョンで真上・真下に最大 4 階まで瞬間移動して逃げる。</td></tr>
+        <tr><td>7</td><td><code>TAIYOHI</code></td><td>太陽への門を開き、灼熱の炎で敵を焼く。最強の攻撃呪文。</td></tr>
+      </tbody></table></div>
+
+    <h3 class="spell-head">幻術師の呪文 <span class="en">Genkai — 幻と守り</span></h3>
+    <div class="table-wrap"><table class="data spells">
+      <thead><tr><th>Lv</th><th>呪文名</th><th>効果</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>KIRI</code></td><td>パーティを暗闇の球で包み、気づかれずに逃げやすくする。</td></tr>
+        <tr><td>1</td><td><code>HIBANA</code></td><td>手からきらめく火花を放ち、行く手の敵を傷つける。</td></tr>
+        <tr><td>1</td><td><code>SHOTEN</code></td><td>戦闘中、1 人の視力を高め、攻撃を当てやすくする。</td></tr>
+        <tr><td>2</td><td><code>NIKKO</code></td><td>術者の周りを銀色に照らす。風のない屋内でだけ効く。</td></tr>
+        <tr><td>2</td><td><code>NIJIN</code></td><td>1 人の姿をぼやけさせ、当たりにくくする。</td></tr>
+        <tr><td>2</td><td><code>MEKURA</code></td><td>敵の頭を轟音と光の粒で満たし、まともに戦えなくする。</td></tr>
+        <tr><td>3</td><td><code>KAWA</code></td><td>敵 1〜3 体を強い恐怖で逃げ出させる。</td></tr>
+        <tr><td>3</td><td><code>NIGERU</code></td><td>濃い霧でパーティを隠し、逃げる機会を作る。</td></tr>
+        <tr><td>3</td><td><code>MAMOTU</code></td><td>何体でも敵を麻痺させ、攻撃の好機を作る。</td></tr>
+        <tr><td>4</td><td><code>MANIJIN</code></td><td>生きている仲間全員の姿を消し、当たりにくくする。</td></tr>
+        <tr><td>4</td><td><code>KAKUSU</code></td><td>パーティを周囲に溶け込ませる。動いたり音を立てたりしない間だけ続く。</td></tr>
+        <tr><td>4</td><td><code>GENEITODO</code></td><td>幻の矢を浴びせる。抵抗した敵の被害は少ない。</td></tr>
+        <tr><td>5</td><td><code>MEIRO</code></td><td>色とりどりの光の球で敵を魅了し、無防備にする。</td></tr>
+        <tr><td>5</td><td><code>MANIGERU</code></td><td>吐き気を催す灰色の煙と轟音で敵を包み、逃げる隙を作る。</td></tr>
+        <tr><td>5</td><td><code>YUJO</code></td><td>敵を惑わし、冒険者を友だと思わせる。</td></tr>
+        <tr><td>6</td><td><code>UKU</code></td><td>パーティを幻の状態にし、水の上を地面のように歩けるようにする。</td></tr>
+        <tr><td>6</td><td><code>MAKAWA</code></td><td>敵全体を震え上がらせる。KAWA の強化版。</td></tr>
+        <tr><td>6</td><td><code>KOTOBA</code></td><td>力ある言葉で、戦っている敵の命を奪う。効きにくい敵もいる。</td></tr>
+        <tr><td>7</td><td><code>HONIGERU</code></td><td>パーティの幻の分身を作り、その間にこっそり逃げる。たいていの敵はだまされる。</td></tr>
+        <tr><td>7</td><td><code>YUREI</code></td><td>パーティを影と幻の世界へ送り、敵には知り合いのように見せる。</td></tr>
+        <tr><td>7</td><td><code>TSUKIHI</code></td><td>目のくらむ銀色の炎を滝のように浴びせ、敵を焼き尽くす。</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section id="places">
+    <h2>場所と仕掛け</h2>
+    <p>ロルンには温暖な森・平原・沼、乾いた砂漠と低木地帯、北の凍ったツンドラなどさまざまな土地があります。大陸の間は船で渡ります
+    （港で金を払って船を雇うか、敵の船を奪う）。海はとりわけ危険です。</p>
+    <div class="table-wrap">
+    <table class="data">
+      <tbody>
+        <tr><td>城</td><td>知られている城は、コダンにある皇帝ナカモトの城だけ。コダンの東の、地図にない島にも堅固な城があるという噂。</td></tr>
+        <tr><td>都市</td><td>出来事の多くは都市で起こる。物価もほかより安い。</td></tr>
+        <tr><td>町・村</td><td>町には旅人向けの店がある。住人とはよく話そう。村では食事と宿が得られ、それ以上のものもあるという噂。</td></tr>
+        <tr><td>ダンジョン</td><td>入り組んだ洞窟や地下墓地。どの地方にもある。洞窟の入口を探して入る。</td></tr>
+        <tr><td>砦</td><td>山道を侵略から守る要塞。</td></tr>
+        <tr><td>ピラミッド</td><td>南の大砂漠にある、古の王たちの墓。生者への強い呪いで守られている。</td></tr>
+        <tr><td>遺跡</td><td>町や村の跡。凶暴なモンスターも、宝や手がかりもある。</td></tr>
+        <tr><td>寺院</td><td>人里離れた場所にある、人ならざる者たちの教団の拠点。用心を。</td></tr>
+        <tr><td>塔</td><td>世を捨てた魔法使いや死霊術師が、おぞましい実験をしている。</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <h3 style="margin-top:22px">ダンジョンの仕掛けと物</h3>
+    <div class="table-wrap">
+    <table class="data">
+      <tbody>
+        <tr><td>落とし穴</td><td>隠れた穴（杭があることも）。<kbd>^</kbd> で這い上がれる。</td></tr>
+        <tr><td>シュート・陥没穴</td><td>下の階へ落とされる。</td></tr>
+        <tr><td>テレポーター</td><td>同じ階や別の階の別の場所へ飛ばされる。画面が一瞬ちらつき、気づくと別の場所にいる、あるいはいつまでも進めないなら疑おう。</td></tr>
+        <tr><td>隠し扉</td><td>扉が隠されている。<kbd>F</kbd> で壁を調べる。</td></tr>
+        <tr><td>偽の扉</td><td>開かない扉。</td></tr>
+        <tr><td>幻の壁・幻の物</td><td>普通の壁に見えて通り抜けられる。見た目にだまされないこと。</td></tr>
+        <tr><td>落とし格子</td><td>鉄の格子。力ずくで上げられる。</td></tr>
+        <tr><td>アーカンの壁・ラクハモンの幕</td><td>魔法の障壁。通ろうとすると力を吸われたり、強い電撃を受けたりする。特別な品があれば通れる幕もある。</td></tr>
+        <tr><td>闇</td><td>光を呑み込む空間。</td></tr>
+        <tr><td>泉</td><td>良い魔法も悪い魔法もある（<kbd>Z</kbd> で飲む）。</td></tr>
+        <tr><td>酸・炎・沼</td><td>酸は生き物を焼き、炎は明かりや侵入者よけ。沼には危険な生き物がいて、汚れていることも。</td></tr>
+        <tr><td>宝箱・小箱・壺・棺</td><td>金や装備、珍しい宝が入っている。棺には不死の怪物が眠っていることも。</td></tr>
+        <tr><td>看板・道標</td><td>警告や手がかり、宣伝。<kbd>R</kbd> で読む。</td></tr>
+        <tr><td>階段</td><td>上り下りに使う。</td></tr>
+        <tr><td>茂み・木</td><td>パーティを隠してくれる。</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="muted" style="margin-top:14px">ダンジョンは方眼紙 1 マスが画面の 1 マス、1 階が方眼紙 1 枚に収まる大きさです。地図を描き、空白の不自然な場所や妙な通路があれば、隠し部屋や階段を疑いましょう。</p>
+  </section>
+
+  <section id="tips">
+    <h2>攻略のヒント</h2>
+    <ul class="features">
+      <li>次の土地へ進む前に、今いる場所をくまなく調べる。壁は隠し扉を探して調べる。</li>
+      <li>1 レベルのうちはダンジョンの 2〜3 階へ行かない。階段の近くで短く探索する。</li>
+      <li>HP や魔力が少なくなったら戦いを避ける。「あと 1 体だけ」が命取りになる。</li>
+      <li>戦士ばかりにしない。呪文 1 つで解決できる場面は多い。</li>
+      <li>前の 3 人だけが戦う。司祭を前に、侍を後ろに置くようなことは避ける。</li>
+      <li>呪文は温存する。弱い敵に強い呪文を使わない。</li>
+      <li>良いことがあったらこまめにセーブする。</li>
+      <li>最初から全員の装備をそろえなくてよい。まず前列 3 人に武器を。</li>
+      <li>楽しみのために人を襲わない。住人に嫌われ、旅がずっと難しくなる。</li>
+      <li>見つけた文書は皇帝のもとへ持ち帰る。報酬を受け取るには、大切な戦いで手に入れる特別な品も必要。</li>
+      <li>手がかり（言葉や名前）は必ずメモする。謎の答えは音の組み合わせになっていることもある。</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><a href="./">日本語化パッチのページ</a> · <a href="https://github.com/higesho/deathlord-relorded-jp">GitHub リポジトリ</a></p>
+    <p>このガイドは、原作のマニュアルとコマンドカード、Deathlord Relorded の資料をもとに独自に書き起こしたものです。原本の翻訳ではありません。数値や仕様に誤りがあれば Issues でお知らせください。</p>
+    <p>Deathlord © 1987 Al Escudero, David Wong / Electronic Arts. Deathlord Relorded © Rikkles.</p>
+  </div>
+</footer>
+
+</body>
+</html>
