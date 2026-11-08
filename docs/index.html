@@ -214,7 +214,7 @@ footer p { margin: 0 0 6px; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
         パッチをダウンロード
       </a>
-      <a class="btn btn-ghost" href="#install">インストール方法</a>
+      <a class="btn btn-ghost" href="#upstream">インストール方法</a>
     </div>
     <p class="meta">Windows 版 Deathlord Relorded 3.0 テスト版で確認 · ZIP 約 1.6MB · ゲームのデータは含みません</p>
   </div>
@@ -267,12 +267,51 @@ footer p { margin: 0 0 6px; }
     </p>
   </section>
 
+  <section id="upstream">
+    <h2>Deathlord Relorded の導入</h2>
+    <p>このパッチは Deathlord Relorded（以下 Relorded）に追加して使います。まず Relorded 本体を用意してください。ゲームのディスクイメージは Relorded に入っています。</p>
+    <ol class="steps">
+      <li>
+        <h3>Relorded をダウンロード</h3>
+        <p><a href="https://rikkles.itch.io/deathlord-relorded">itch.io の Deathlord Relorded のページ</a>から、Windows 版の 3.0 テスト版（<code>deathlord-relorded-windows-3-test.zip</code>）をダウンロードします。</p>
+      </li>
+      <li>
+        <h3>ZIP をすべて展開</h3>
+        <p>ZIP の中身を、好きな場所にフォルダごと展開します。<code>dlrl.exe</code> の横にあるフォルダ（<code>assets</code>・<code>DLRLAssets</code>・<code>Images</code>・<code>Resources</code> など）や <code>SDL3.dll</code> も必要なので、<code>dlrl.exe</code> だけを移動しないでください。</p>
+      </li>
+      <li>
+        <h3>動作を確認</h3>
+        <p><code>dlrl.exe</code> を起動して、タイトル画面が出ることを確かめます。OpenGL に対応したグラフィックドライバが必要です。
+        署名のないテスト版のため、Windows の「PC が保護されました」が出たら「詳細情報」→「実行」で起動できます。</p>
+        <p class="muted">初回の起動時に、同梱のディスクイメージをユーザーごとの保存フォルダにコピーして使います（同梱のイメージは書き換えません）。ディスクの入れ替えは不要です。</p>
+      </li>
+    </ol>
+    <div class="cols">
+      <div class="card">
+        <h3>ゲームの始め方</h3>
+        <ul>
+          <li>タイトル画面で何かキーを押し、メニューで <kbd>C</kbd>（キャラクター設定）を選びます。</li>
+          <li>「新たなキャラクターを作る」で種族・職業を選びます。能力値の確認で <kbd>A</kbd> を押すと、よい値が出るまで自動で振り直します。</li>
+          <li>6 人作ったら「パーティを解散する」→「パーティを編成する」で 6 人のパーティを組みます（Relorded は 6 人パーティ専用です）。</li>
+          <li>メインメニューに戻って <kbd>P</kbd>（ゲームを始める）を選び、<kbd>Space</kbd> で開始します。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>原作のマニュアル</h3>
+        <p>コマンド・呪文・種族・職業の説明は原作のマニュアル（英語）にあります。Relorded の作者も「必ず読んでほしい」としています。
+        <a href="https://archive.org/download/Deathlord/Deathlord.pdf">archive.org の Deathlord.pdf</a> から読めます。
+        Relorded での変更点は同梱の <code>DOCUMENTATION.md</code> にまとまっています。</p>
+        <p class="muted">最初からやり直すときは、Relorded のメニュー「ファイル」→「最初から新しく始める」を使います（既存のキャラクターは消えます）。</p>
+      </div>
+    </div>
+  </section>
+
   <section id="install">
     <h2>インストール方法</h2>
     <ol class="steps">
       <li>
         <h3>Deathlord Relorded を用意</h3>
-        <p><a href="https://rikkles.itch.io/deathlord-relorded">itch.io</a> から Deathlord Relorded 3.0（テスト版、Windows）を入手し、展開します。ゲームのディスクイメージはこちらに入っています。</p>
+        <p><a href="#upstream">上の手順</a>で Deathlord Relorded 3.0（テスト版、Windows）を展開し、一度起動できることを確かめておきます。</p>
       </li>
       <li>
         <h3>ダウンロード</h3>

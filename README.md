@@ -10,8 +10,17 @@
 
 ![キャラクター作成](docs/img/create.png)
 
-## 使い方
-1. [Deathlord Relorded](https://rikkles.itch.io/deathlord-relorded)（3.0 テスト版、Windows）を入手して展開する
+## Deathlord Relorded の導入
+このパッチは Deathlord Relorded に追加して使います。ゲームのディスクイメージは Relorded に入っています。
+1. [itch.io の Deathlord Relorded のページ](https://rikkles.itch.io/deathlord-relorded)から Windows 版の 3.0 テスト版（`deathlord-relorded-windows-3-test.zip`）をダウンロードする
+2. ZIP の中身をフォルダごとすべて展開する（`dlrl.exe` の横のフォルダや `SDL3.dll` も必要。`dlrl.exe` だけを移動しない）
+3. `dlrl.exe` を起動してタイトル画面が出ることを確かめる（OpenGL 対応のドライバが必要。署名のないテスト版なので、「PC が保護されました」が出たら「詳細情報」→「実行」）
+
+ゲームを始めるには、タイトルで何かキー →「キャラクター設定」でキャラクターを 6 人作る →「パーティを解散する」→「パーティを編成する」で 6 人のパーティを組む → メインメニューで「ゲームを始める」→ Space。
+コマンドや呪文の説明は原作のマニュアル（[Deathlord.pdf](https://archive.org/download/Deathlord/Deathlord.pdf)、英語）と、Relorded 同梱の `DOCUMENTATION.md` にあります。
+
+## パッチの使い方
+1. Releases から `DeathlordRelorded_JP_<版>.zip` をダウンロードして展開する
 2. ZIP の中身（`dlrl_ja.exe`、`assets`、`DLRLAssets`）を Deathlord Relorded のフォルダ（`dlrl.exe` のある場所）にコピーする（上書きはありません）
 3. `dlrl_ja.exe` を起動する（**F9** で日本語と原文を切り替え）
 

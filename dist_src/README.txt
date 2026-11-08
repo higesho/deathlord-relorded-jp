@@ -16,6 +16,22 @@ Deathlord Relorded 日本語化パッチ __VERSION__
   ゲーム本体（ディスクイメージ）は Deathlord Relorded に含まれています。このパッチには含まれていません。
 
 
+■ Deathlord Relorded の導入（まだの方）
+  1. itch.io の Deathlord Relorded のページ（https://rikkles.itch.io/deathlord-relorded）から、
+     Windows 版の 3.0 テスト版（deathlord-relorded-windows-3-test.zip）をダウンロードします。
+  2. ZIP の中身をフォルダごとすべて展開します。dlrl.exe の横のフォルダや SDL3.dll も必要なので、
+     dlrl.exe だけを移動しないでください。
+  3. dlrl.exe を起動してタイトル画面が出ることを確かめます。OpenGL 対応のグラフィックドライバが必要です。
+     署名のないテスト版のため、「PC が保護されました」が出たら「詳細情報」→「実行」で起動できます。
+     初回の起動時に、同梱のディスクイメージをユーザーごとの保存フォルダにコピーして使います。
+
+  ゲームの始め方：タイトルで何かキー →「キャラクター設定」でキャラクターを 6 人作る
+  →「パーティを解散する」→「パーティを編成する」で 6 人のパーティを組む
+  → メインメニューで「ゲームを始める」→ Space キー。
+  コマンドや呪文の説明は原作のマニュアル（https://archive.org/download/Deathlord/Deathlord.pdf、英語）と、
+  Relorded 同梱の DOCUMENTATION.md にあります。
+
+
 ■ インストール
   ZIP の中身（dlrl_ja.exe、assets フォルダ、DLRLAssets フォルダ）を、
   Deathlord Relorded のフォルダ（dlrl.exe のある場所）にそのままコピーします。
