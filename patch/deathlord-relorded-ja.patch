@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a6ee2bf..d1c5bd5 100644
+index a6ee2bf..89a23e3 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -116,6 +116,8 @@ add_executable(dlrl WIN32 MACOSX_BUNDLE
@@ -11,11 +11,17 @@ index a6ee2bf..d1c5bd5 100644
  )
  target_include_directories(dlrl PRIVATE
      ${CMAKE_CURRENT_SOURCE_DIR}
-@@ -132,6 +134,7 @@ target_link_libraries(dlrl PRIVATE
+@@ -132,6 +134,13 @@ target_link_libraries(dlrl PRIVATE
  
  if(MSVC)
      target_compile_definitions(dlrl PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
 +    target_compile_options(dlrl PRIVATE /utf-8)
++    target_sources(dlrl PRIVATE src/dlrl_ja.rc)
++endif()
++# Test build only (cmake -DDLRL_JA_TEST=ON): DLRL_DUMP_* debug output to stderr.
++option(DLRL_JA_TEST "Japanese layer debug output" OFF)
++if(DLRL_JA_TEST)
++    target_compile_definitions(dlrl PRIVATE DLRL_JA_TEST)
  endif()
  if(APPLE)
      target_compile_definitions(dlrl PRIVATE GL_SILENCE_DEPRECATION)
@@ -639,10 +645,10 @@ index 0000000..12425be
 +};
 diff --git a/src/Localization.cpp b/src/Localization.cpp
 new file mode 100644
-index 0000000..213a65b
+index 0000000..7e9d690
 --- /dev/null
 +++ b/src/Localization.cpp
-@@ -0,0 +1,855 @@
+@@ -0,0 +1,865 @@
 +#include "Localization.h"
 +
 +#include "HgrText.h"
@@ -982,12 +988,16 @@ index 0000000..213a65b
 +
 +void NoteUnmatched(const std::string& text)
 +{
++#ifdef DLRL_JA_TEST
 +    static const bool enabled = std::getenv("DLRL_DUMP_UNMATCHED") != nullptr;
 +    if (!enabled || !Enabled()) return;
 +    const std::string key = NormalizeKey(text);
 +    if (key.empty() || HasNonAscii(text)) return;
 +    static std::unordered_map<std::string, bool> seen;
 +    if (seen.emplace(key, true).second) std::fprintf(stderr, "UNMATCHED|%s|\n", text.c_str());
++#else
++    (void)text;
++#endif
 +}
 +
 +bool HasNonAscii(const std::string& text)
@@ -1345,6 +1355,7 @@ index 0000000..213a65b
 +    {
 +        items = BuildOverlay(screen);
 +        lastSignature = screen.Signature();
++#ifdef DLRL_JA_TEST
 +        if (std::getenv("DLRL_DUMP_TEXT"))
 +        {
 +            std::fputs("--- screen text ---\n", stderr);
@@ -1364,6 +1375,7 @@ index 0000000..213a65b
 +                std::fprintf(stderr, "item %d,%d-%d,%d %s\n", item.column0, item.row0,
 +                             item.column1, item.row1, item.text.c_str());
 +        }
++#endif
 +    }
 +
 +    const float cellWidth = size.x / HgrTextScreen::Columns;
@@ -1373,6 +1385,7 @@ index 0000000..213a65b
 +
 +    // The boot menu's three choices are drawn as large bitmap lettering, not
 +    // with the font. Recognise the screen by its copyright line instead.
++#ifdef DLRL_JA_TEST
 +    static const bool dumpText = std::getenv("DLRL_DUMP_TEXT") != nullptr;
 +    if (dumpText && screen.Signature() != 0)
 +    {
@@ -1382,6 +1395,7 @@ index 0000000..213a65b
 +            std::fprintf(stderr, "menu hash %016llx\n", static_cast<unsigned long long>(hash));
 +        lastMenuHash = hash;
 +    }
++#endif
 +    for (int pass = 0; pass < 1; ++pass)
 +    {
 +        const std::uint64_t menuHash = screen.RegionHash(7, 16);
@@ -1486,9 +1500,11 @@ index 0000000..213a65b
 +            if (item.centered)
 +                x = min.x + std::max(0.0f, ((max.x - min.x) - TextWidth(line, fontSize)) * 0.5f);
 +            texts.push_back({ImVec2(x, y), fontSize, item.inverse ? black : white, line});
++#ifdef DLRL_JA_TEST
 +            if (dumpText && item.inverse)
 +                std::fprintf(stderr, "inv rect y %.1f-%.1f text y %.1f size %.0f cell %.1f\n",
 +                             min.y, max.y, y, fontSize, cellHeight);
++#endif
 +            y += lineHeight;
 +        }
 +    }
@@ -1500,7 +1516,7 @@ index 0000000..213a65b
 +} // namespace loc
 diff --git a/src/Localization.h b/src/Localization.h
 new file mode 100644
-index 0000000..2e1a257
+index 0000000..9db55a5
 --- /dev/null
 +++ b/src/Localization.h
 @@ -0,0 +1,62 @@
@@ -1550,7 +1566,7 @@ index 0000000..2e1a257
 +                                  int maxSpan = 12);
 +
 +bool HasNonAscii(const std::string& text);
-+// Debug aid: with DLRL_DUMP_UNMATCHED set, prints each distinct untranslated line once.
++// Debug aid (test build only, DLRL_JA_TEST): with DLRL_DUMP_UNMATCHED set, prints each distinct untranslated line once.
 +void NoteUnmatched(const std::string& text);
 +
 +void SetFont(ImFont* font);
@@ -1567,7 +1583,7 @@ index 0000000..2e1a257
 +
 +} // namespace loc
 diff --git a/src/ModernUI.cpp b/src/ModernUI.cpp
-index 7199bf5..f02af12 100644
+index 7199bf5..96697f8 100644
 --- a/src/ModernUI.cpp
 +++ b/src/ModernUI.cpp
 @@ -5,6 +5,7 @@
@@ -1707,25 +1723,29 @@ index 7199bf5..f02af12 100644
          if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) { x=hoverX; y=hoverY; }
      }
      const ImVec2 center(origin.x+(x+0.5f)*cell,origin.y+(y+0.5f)*cell);
-@@ -708,11 +773,17 @@ void ModernUI::HandleEvent(const HookEvent& event)
+@@ -708,11 +773,21 @@ void ModernUI::HandleEvent(const HookEvent& event)
              longLog_.push_back(log_.front().text);
              if (longLog_.size() > 2000) longLog_.pop_front();
          }
++#ifdef DLRL_JA_TEST
 +        static const bool dumpLog = std::getenv("DLRL_DUMP_LOG") != nullptr;
 +        if (dumpLog && !log_.empty())
 +            std::fprintf(stderr, "LOG|%s|%s\n", log_.front().text.c_str(),
 +                         log_.front().inverse ? "inv" : "");
++#endif
          if (log_.size() >= 32) log_.pop_back();
          log_.push_front({std::string(18, ' '), false});
      };
      auto scrollBillboard = [&]()
      {
++#ifdef DLRL_JA_TEST
 +        static const bool dumpBoard = std::getenv("DLRL_DUMP_LOG") != nullptr;
 +        if (dumpBoard) std::fprintf(stderr, "BB|%s|\n", billboard_[0].text.c_str());
++#endif
          for (int index = 7; index > 0; --index) billboard_[index] = billboard_[index - 1];
          billboard_[0] = {std::string(18, ' '), false};
      };
-@@ -1392,24 +1463,40 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -1392,24 +1467,40 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
      const bool keypressInverse = (static_cast<int>(ImGui::GetTime() * 2.0) & 1) == 0;
      PanelCenteredText(1412, 815, inverseColor, keypress, keypressInverse);
  
@@ -1781,7 +1801,7 @@ index 7199bf5..f02af12 100644
      }
      const int partyCount = std::clamp<int>(MemGetMainPtr(PartySizeAddress)[0], 0, PartySize);
      const int current = MemGetMainPtr(PartyCurrentCharacter)[0];
-@@ -1516,13 +1603,17 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -1516,13 +1607,17 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
          const int race = Party(PartyRace, member) & 0x07;
          PartyCenteredText(x + 48, y + 129, normal, ClassNames[characterClass], 8);
          PartyCenteredText(x + 48, y + 139, normal, RaceNames[race], 8);
@@ -1802,7 +1822,7 @@ index 7199bf5..f02af12 100644
                        Party(PartySizeAttribute, member), Party(PartyCharisma, member));
          PartyText(x + 2, y + 183, dim, buffer, 8);
  
-@@ -1545,8 +1636,14 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -1545,8 +1640,14 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
                                   : inventoryRules_
                                       ? inventoryRules_->Name(item, englishNames)
                                       : "Unknown";
@@ -1819,7 +1839,7 @@ index 7199bf5..f02af12 100644
              const float itemY = y + 120 + slot * 9;
              PartyText(x + 138, itemY, normal, count + " " + itemName, 8);
              std::string equipment;
-@@ -1797,8 +1894,24 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -1797,8 +1898,24 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
          const char* headers = inventorySlot_ < 2
              ? "Name                  TH0    Damage    AC   Special"
              : "Name                   TH0   AC   Special";
@@ -1846,7 +1866,7 @@ index 7199bf5..f02af12 100644
  
          for (int member = 0; member < partyCount; ++member)
          {
-@@ -1943,7 +2056,13 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -1943,7 +2060,13 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
              char itemText[256];
              const int thaco = inventoryRules_ ? inventoryRules_->Thaco(row.item) : 0;
              const int ac = inventoryRules_ ? -inventoryRules_->ArmorClass(row.item) : 0;
@@ -1861,7 +1881,7 @@ index 7199bf5..f02af12 100644
              if (inventorySlot_ < 2)
              {
                  const int attacks = inventoryRules_ ? inventoryRules_->Attacks(row.item) : 0;
-@@ -1970,6 +2089,16 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -1970,6 +2093,16 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
                                name.c_str(), thaco, ac, special.c_str());
              AddAppleText(draw, appleFont_, origin, scale,
                           innerLeft, y, white, itemText);
@@ -1878,7 +1898,7 @@ index 7199bf5..f02af12 100644
  
              for (int member = 0; member < partyCount; ++member)
              {
-@@ -2083,6 +2212,10 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
+@@ -2083,6 +2216,10 @@ void ModernUI::Render(unsigned int appleFramebufferTexture, bool showAppleVideo,
                         Point(origin, scale, appleX + appleWidth, appleY + appleHeight),
                         ImVec2(20.0f / 600.0f, 1.0f - 18.0f / 420.0f),
                         ImVec2(1.0f - 20.0f / 600.0f, 18.0f / 420.0f));
@@ -1889,7 +1909,7 @@ index 7199bf5..f02af12 100644
      }
  
      // Transition and death presentation deliberately live in the same canvas
-@@ -2222,7 +2355,7 @@ void ModernUI::RenderLogWindow(bool* open)
+@@ -2222,7 +2359,7 @@ void ModernUI::RenderLogWindow(bool* open)
          return mouse.x >= a.x && mouse.x < b.x && mouse.y >= a.y && mouse.y < b.y;
      };
  
@@ -1898,7 +1918,7 @@ index 7199bf5..f02af12 100644
      const float clearWidth = DeathlordTextWidth(clearLabel, 16.0f);
      const bool clearHovered = hit(panelX + 26.0f, panelY + 16.0f,
                                    clearWidth + 4.0f, 20.0f);
-@@ -2254,7 +2387,25 @@ void ModernUI::RenderLogWindow(bool* open)
+@@ -2254,7 +2391,25 @@ void ModernUI::RenderLogWindow(bool* open)
      const float contentBottom = panelY + panelHeight - 26.0f;
      const int visibleRows = std::max(
          1, static_cast<int>((contentBottom - contentTop) / lineHeight));
@@ -1925,7 +1945,7 @@ index 7199bf5..f02af12 100644
      const float maxScroll = static_cast<float>(std::max(0, total - visibleRows));
      if (hit(panelX, panelY, panelWidth, panelHeight))
          logScrollFromBottom_ += ImGui::GetIO().MouseWheel * 3.0f;
-@@ -2273,7 +2424,7 @@ void ModernUI::RenderLogWindow(bool* open)
+@@ -2273,7 +2428,7 @@ void ModernUI::RenderLogWindow(bool* open)
      const int last = std::min(total, first + visibleRows);
      float y = contentTop;
      for (int index = first; index < last; ++index, y += lineHeight)
@@ -1934,6 +1954,41 @@ index 7199bf5..f02af12 100644
  
      if (total > visibleRows)
      {
+diff --git a/src/dlrl_ja.rc b/src/dlrl_ja.rc
+new file mode 100644
+index 0000000..7a02af2
+--- /dev/null
++++ b/src/dlrl_ja.rc
+@@ -0,0 +1,29 @@
++#pragma code_page(65001)
++#include <winver.h>
++
++1 VERSIONINFO
++FILEVERSION 0,9,1,0
++PRODUCTVERSION 0,9,1,0
++FILEOS 0x40004L
++FILETYPE VFT_APP
++BEGIN
++  BLOCK "StringFileInfo"
++  BEGIN
++    BLOCK "041104B0"
++    BEGIN
++      VALUE "CompanyName", "higesho"
++      VALUE "ProductName", "Deathlord Relorded 日本語化パッチ（非公式）"
++      VALUE "FileDescription", "Deathlord Relorded 日本語化パッチ（非公式）"
++      VALUE "FileVersion", "0.9.1.0"
++      VALUE "ProductVersion", "0.9.1"
++      VALUE "InternalName", "dlrl_ja"
++      VALUE "OriginalFilename", "dlrl_ja.exe"
++      VALUE "LegalCopyright", "Deathlord Relorded の改変物（GNU AGPL v3）"
++      VALUE "Comments", "https://higesho.github.io/deathlord-relorded-jp/"
++    END
++  END
++  BLOCK "VarFileInfo"
++  BEGIN
++    VALUE "Translation", 0x0411, 1200
++  END
++END
 diff --git a/src/main.cpp b/src/main.cpp
 index 30d287f..31e3cfe 100644
 --- a/src/main.cpp

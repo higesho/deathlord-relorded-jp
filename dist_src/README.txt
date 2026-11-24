@@ -81,6 +81,11 @@ Deathlord Relorded 日本語化パッチ __VERSION__
   原文はハッシュ値でだけ記録しています。訳の直し方はリポジトリの README を見てください。
 
 
+■ 更新履歴
+  v0.9.1  ウイルス対策ソフトに誤検知されにくいよう、配布版に不要だった試験用のコードを外し、dlrl_ja.exe にバージョン情報を入れました。訳文は前の版と同じです。
+  v0.9.0  最初の版
+
+
 ■ ライセンス・クレジット
   ・dlrl_ja.exe は Deathlord Relorded（Rikkles、協力 qkumba・BillG）を改変したもので、
     GNU Affero General Public License v3 に従います（LICENSE-AGPL.txt）。

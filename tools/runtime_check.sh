@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Drive the game through scripted scenarios and collect on-screen lines that
 # found no translation (DLRL_DUMP_UNMATCHED). usage: runtime_check.sh <dlrl.exe> <hdv> <outdir>
+# Use the test build (tools\build.bat test -> build\dlrl\build-win-test\Release\dlrl.exe);
+# the release build has no DLRL_DUMP_* output.
 EXE="$1"; HDV="$2"; OUT="$3"
 mkdir -p "$OUT"
 
